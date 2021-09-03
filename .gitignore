@@ -1,0 +1,14 @@
+.DS_Store
+.idea
+.phpunit.cache
+.phpunit.result.cache
+/bootstrap/
+/docker
+/env/docker/
+/nbproject/
+/nbproject/private/
+/vendor
+artisan
+composer.lock
+coverage.xml
+openapi.json
