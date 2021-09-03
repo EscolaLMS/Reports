@@ -19,7 +19,6 @@ class ReportRequest extends AbstractAdminOnlyRequest
             'metric' => ['required', Rule::in(config('reports.metrics'))],
             'limit' => ['sometimes', 'integer'],
             'date' => ['sometimes', 'date'],
-            'current' => ['sometimes', 'boolean'],
         ];
     }
 
