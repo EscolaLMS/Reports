@@ -119,6 +119,8 @@ class MetricsTest extends TestCase
 
         $this->assertEquals(120, $measurement->value);
         $this->assertEquals($course->title, $measurement->label);
+        $this->assertEquals($report->getKey(), $measurement->report->getKey());
+        $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
     }
 
     public function testCoursesPopularityMetric()
@@ -149,6 +151,8 @@ class MetricsTest extends TestCase
 
         $this->assertEquals(2, $measurement->value);
         $this->assertEquals($course->title, $measurement->label);
+        $this->assertEquals($report->getKey(), $measurement->report->getKey());
+        $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
     }
 
     public function testTutorsPopularityMetric()
@@ -185,6 +189,8 @@ class MetricsTest extends TestCase
 
         $this->assertEquals(10, $measurement->value);
         $this->assertEquals($tutor->email, $measurement->label);
+        $this->assertEquals($report->getKey(), $measurement->report->getKey());
+        $this->assertEquals($tutor->getKey(), $measurement->measurable->getKey());
     }
 
     public function testCourseMoneySpentMetric()
@@ -214,5 +220,7 @@ class MetricsTest extends TestCase
 
         $this->assertEquals(2000, $measurement->value);
         $this->assertEquals($course->title, $measurement->label);
+        $this->assertEquals($report->getKey(), $measurement->report->getKey());
+        $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
     }
 }
