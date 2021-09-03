@@ -18,18 +18,23 @@ class FindReport
             ]));
         }
 
-        if (!is_null($date)) {
-            /** @var Report $report */
-            $report = Report::where('metric', $metric)->whereDate('created_at', '=', $date)->first();
-            if ($report) {
-                return $report;
-            }
-            if (!$date->isSameDay(Carbon::now())) {
-                return null;
-            }
+        /** @var Report $report */
+        $report = Report::where('metric', $metric)->whereDate('created_at', '=', $date ?? Carbon::now())->orderBy('created_at', 'DESC')->first();
+
+        if ($this->isHistorical($date) || $this->hasEnoughDataPoints($report, $limit)) {
+            return $report;
         }
 
-        /* Date is null or date is today and no report was found */
         return $metric::make()->calculateAndStore($limit);
+    }
+
+    private function isHistorical(?Carbon $date): bool
+    {
+        return !is_null($date) && !$date->isSameDay(Carbon::now());
+    }
+
+    private function hasEnoughDataPoints(?Report $report, ?int $limit)
+    {
+        return !is_null($report) && $report->measurements()->count >= (int) $limit;
     }
 }

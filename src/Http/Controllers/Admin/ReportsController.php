@@ -4,16 +4,13 @@ namespace EscolaLms\Reports\Http\Controllers\Admin;
 
 use EscolaLms\Core\Http\Controllers\EscolaLmsBaseController;
 use EscolaLms\Reports\Actions\FindReport;
+use EscolaLms\Reports\Http\Controllers\Admin\Swagger\ReportsSwagger;
 use EscolaLms\Reports\Http\Requests\Admin\ReportRequest;
 use EscolaLms\Reports\Http\Resources\MeasurementCollection;
-use EscolaLms\Reports\Models\Report;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
-use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 
-class ReportsController extends EscolaLmsBaseController
+class ReportsController extends EscolaLmsBaseController implements ReportsSwagger
 {
-
     public function metrics(): JsonResponse
     {
         return $this->sendResponse(config('reports.metrics'), __('Enabled metrics'));
