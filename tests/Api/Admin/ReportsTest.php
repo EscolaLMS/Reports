@@ -6,6 +6,7 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
+use EscolaLms\Reports\Models\Report;
 use EscolaLms\Reports\Tests\Metrics\MetricsTest;
 use EscolaLms\Reports\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -47,7 +48,7 @@ class ReportsTest extends TestCase
 
         /** @var TestUser $student2 */
         $student2 = $this->makeStudent();
-        $student->courses()->saveMany([$course, $course2]);
+        $student2->courses()->saveMany([$course, $course2]);
 
         $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
@@ -90,7 +91,7 @@ class ReportsTest extends TestCase
 
         /** @var TestUser $student2 */
         $student2 = $this->makeStudent();
-        $student->courses()->saveMany([$course, $course2]);
+        $student2->courses()->saveMany([$course, $course2]);
 
         $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
@@ -109,6 +110,98 @@ class ReportsTest extends TestCase
         ]);
     }
 
+    public function testReportTodayMultipleTimes()
+    {
+        $admin = $this->makeAdmin();
+
+        $course = Course::factory()->create();
+        $course2 = Course::factory()->create();
+
+        /** @var TestUser $student */
+        $student = $this->makeStudent();
+        $student->courses()->save($course);
+
+        /** @var TestUser $student2 */
+        $student2 = $this->makeStudent();
+        $student2->courses()->saveMany([$course, $course2]);
+
+        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+            'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
+            'date' => Carbon::today(),
+        ]);
+
+        $response->assertOk();
+
+        $response->assertJsonFragment([
+            'label' => $course->title,
+            'value' => 2
+        ]);
+        $response->assertJsonFragment([
+            'label' => $course2->title,
+            'value' => 1
+        ]);
+
+        $this->assertEquals(1, Report::count());
+
+        $student->courses()->save($course2);
+
+        // Will return same report that first call
+        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+            'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
+            'date' => Carbon::today(),
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'label' => $course->title,
+            'value' => 2
+        ]);
+        $response->assertJsonFragment([
+            'label' => $course2->title,
+            'value' => 1
+        ]);
+
+        $this->assertEquals(1, Report::count());
+
+        // Will calculate fresh report that has different value for course 2
+        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+            'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
+        ]);
+
+        $response->assertOk();
+
+        $response->assertJsonFragment([
+            'label' => $course->title,
+            'value' => 2
+        ]);
+        $response->assertJsonFragment([
+            'label' => $course2->title,
+            'value' => 2
+        ]);
+
+        $this->assertEquals(2, Report::count());
+
+        // Will again calculate fresh report because we are trying to fetch more data points that were available in last saved report
+        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+            'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
+            'limit' => 11,
+            'date' => Carbon::today(),
+        ]);
+
+        $response->assertOk();
+
+        $response->assertJsonFragment([
+            'label' => $course->title,
+            'value' => 2
+        ]);
+        $response->assertJsonFragment([
+            'label' => $course2->title,
+            'value' => 2
+        ]);
+
+        $this->assertEquals(3, Report::count());
+    }
+
     public function testReportLimit()
     {
         $admin = $this->makeAdmin();
@@ -122,7 +215,7 @@ class ReportsTest extends TestCase
 
         /** @var TestUser $student2 */
         $student2 = $this->makeStudent();
-        $student->courses()->saveMany([$course, $course2]);
+        $student2->courses()->saveMany([$course, $course2]);
 
         $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
@@ -154,7 +247,7 @@ class ReportsTest extends TestCase
 
         /** @var TestUser $student2 */
         $student2 = $this->makeStudent();
-        $student->courses()->saveMany([$course, $course2]);
+        $student2->courses()->saveMany([$course, $course2]);
 
         $report = CoursesPopularityMetric::make()->calculateAndStore();
         $report->created_at = Carbon::yesterday();

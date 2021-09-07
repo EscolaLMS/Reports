@@ -21,7 +21,7 @@ class FindReport
         /** @var Report $report */
         $report = Report::where('metric', $metric)->whereDate('created_at', '=', $date ?? Carbon::now())->orderBy('created_at', 'DESC')->first();
 
-        if ($this->isHistorical($date) || $this->hasEnoughDataPoints($report, $limit)) {
+        if ($this->isHistorical($date) || $this->hasEnoughDataPoints($date, $report, $limit)) {
             return $report;
         }
 
@@ -33,8 +33,8 @@ class FindReport
         return !is_null($date) && !$date->isSameDay(Carbon::now());
     }
 
-    private function hasEnoughDataPoints(?Report $report, ?int $limit)
+    private function hasEnoughDataPoints(?Carbon $date, ?Report $report, ?int $limit)
     {
-        return !is_null($report) && $report->measurements()->count() >= (int) $limit;
+        return !is_null($date) && !is_null($report) && $report->measurements()->count() >= (int) $limit;
     }
 }
