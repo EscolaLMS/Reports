@@ -35,6 +35,6 @@ class FindReport
 
     private function hasEnoughDataPoints(?Report $report, ?int $limit)
     {
-        return !is_null($report) && $report->measurements()->count >= (int) $limit;
+        return !is_null($report) && $report->measurements()->count() >= (int) $limit;
     }
 }
