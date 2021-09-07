@@ -57,7 +57,7 @@ interface ReportsSwagger
      *          name="date",
      *          required=false,
      *          in="query",
-     *          description="date from which report should be loaded (if there exists historical data), limit will be ignored and only datapoints with which record was created will be loaded, don't send this param to get current report",
+     *          description="date from which report should be loaded (if there exists historical data), limit will be ignored and only datapoints with which record was created will be loaded; don't send this param to always get fresh report; send today date if you want to get latest stored report",
      *          @OA\Schema(
      *              type="datetime",
      *          ),
