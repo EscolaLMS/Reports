@@ -134,7 +134,7 @@ class MetricsTest extends TestCase
 
         /** @var TestUser $student2 */
         $student2 = $this->makeStudent();
-        $student->courses()->saveMany([$course, $course2]);
+        $student2->courses()->saveMany([$course, $course2]);
 
         $results = CoursesPopularityMetric::make()->calculate();
 

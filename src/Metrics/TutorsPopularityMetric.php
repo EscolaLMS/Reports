@@ -46,7 +46,7 @@ class TutorsPopularityMetric extends AbstractMetric
         foreach ($results as $result) {
             $report->measurements()->create([
                 'label' => $result['label'],
-                'value' => $result['value'],
+                'value' => $result['value'] ?? 0,
                 'measurable_id' => $result['id'],
                 'measurable_type' => User::class,
             ]);
