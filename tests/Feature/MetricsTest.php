@@ -5,11 +5,11 @@ namespace EscolaLms\Reports\Tests\Feature;
 use EscolaLms\Auth\Models\User as AuthUser;
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
-use EscolaLms\Courses\Models\Course;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
+use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Courses\Models\TopicContent\RichText;
@@ -59,7 +59,7 @@ class MetricsTest extends TestCase
         $progresses = $progressService->getByUser($user);
 
         /** @var Course $course */
-        foreach ($course->topic as $topic) {
+        foreach ($course->topics as $topic) {
             $progressRepository->updateInTopic($topic, $user, ProgressStatus::IN_PROGRESS, $seconds);
         }
         $progressService->update($course, $user, []);
