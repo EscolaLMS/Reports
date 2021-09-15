@@ -6,16 +6,10 @@ use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
-use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use Illuminate\Support\Collection;
 
-class CoursesSecondsSpentMetric extends AbstractCourseMetric
+class CoursesSecondsSpentMetric extends AbstractCoursesMetric
 {
-    public static function make(): MetricContract
-    {
-        return new self(config());
-    }
-
     public function calculate(?int $limit = null): Collection
     {
         $courseTable = (new Course())->getTable();

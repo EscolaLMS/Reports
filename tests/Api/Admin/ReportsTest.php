@@ -7,7 +7,6 @@ use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Models\Report;
-use EscolaLms\Reports\Tests\Metrics\MetricsTest;
 use EscolaLms\Reports\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;

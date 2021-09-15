@@ -3,86 +3,24 @@
 namespace EscolaLms\Reports\Tests\Feature;
 
 use EscolaLms\Auth\Models\User as AuthUser;
-use EscolaLms\Cart\Models\Order;
-use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
-use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Courses\Models\Lesson;
-use EscolaLms\Courses\Models\Topic;
-use EscolaLms\Courses\Models\TopicContent\RichText;
-use EscolaLms\Courses\Repositories\Contracts\CourseProgressRepositoryContract;
-use EscolaLms\Courses\Repositories\CourseProgressRepository;
-use EscolaLms\Courses\Services\Contracts\ProgressServiceContract;
-use EscolaLms\Courses\Services\ProgressService;
-use EscolaLms\Payments\Models\Payment;
 use EscolaLms\Reports\Metrics\CoursesMoneySpentMetric;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Metrics\CoursesSecondsSpentMetric;
 use EscolaLms\Reports\Metrics\TutorsPopularityMetric;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
+use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class MetricsTest extends TestCase
 {
     use CreatesUsers, ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
-
-    private function createCourseWithLessonAndTopic(): Course
-    {
-        return Course::factory()
-            ->has(
-                Lesson::factory()
-                    ->has(
-                        Topic::factory()
-                            ->afterCreating(
-                                function (Topic $topic) {
-                                    $topic->topicable()->associate(RichText::factory()->create())->save();
-                                }
-                            )
-                    )
-            )->create([
-                'base_price' => 1000
-            ]);
-    }
-
-    private function progressUserInCourse(User $user, Course $course, int $seconds = 60)
-    {
-        /** @var ProgressService $progressService */
-        $progressService = app(ProgressServiceContract::class);
-        /** @var CourseProgressRepository $progressRepository */
-        $progressRepository = app(CourseProgressRepositoryContract::class);
-
-        $progresses = $progressService->getByUser($user);
-
-        /** @var Course $course */
-        foreach ($course->topics as $topic) {
-            $progressRepository->updateInTopic($topic, $user, ProgressStatus::IN_PROGRESS, $seconds);
-        }
-        $progressService->update($course, $user, []);
-    }
-
-    private function makePaidOrder(User $user, Course $course): Order
-    {
-        return Order::factory()->has(Payment::factory()->state([
-            'amount' => $course->base_price,
-            'billable_id' => $user->getKey(),
-            'billable_type' => get_class($user),
-        ]))->afterCreating(
-            fn (Order $order) => $order->items()->save(new OrderItem([
-                'quantity' => 1,
-                'buyable_id' => $course->getKey(),
-                'buyable_type' => get_class($course)
-            ]))
-        )->create([
-            'user_id' => $user->getKey(),
-            'total' =>  $course->base_price,
-            'subtotal' =>  $course->base_price,
-        ]);
-    }
+    use CoursesTestingTrait;
 
     public function testCoursesSecondsSpentMetric(): void
     {

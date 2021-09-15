@@ -7,18 +7,12 @@ use EscolaLms\Cart\Models\Course as CartCourse;
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class CoursesMoneySpentMetric extends AbstractCourseMetric
+class CoursesMoneySpentMetric extends AbstractCoursesMetric
 {
-    public static function make(): MetricContract
-    {
-        return new self(config());
-    }
-
     public function calculate(?int $limit = null): Collection
     {
         $courseTable = (new Course())->getTable();

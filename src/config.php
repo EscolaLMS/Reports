@@ -1,6 +1,9 @@
 <?php
 
 return [
+    /**
+     * By modyfing this list, you can add or remove available Metrics for which Reports can be calculated
+     */
     'metrics' => [
         \EscolaLms\Reports\Metrics\CoursesMoneySpentMetric::class,
         \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
@@ -33,6 +36,22 @@ return [
             'limit' => 10,
             'history' => false,
             'cron' => '0 0 * * *',
+        ],
+    ],
+    /**
+     * By modyfing this associative array, you can add or remove available Stats which can be returned for single objects of given class
+     */
+    'stats' => [
+        \EscolaLms\Courses\Models\Course::class => [
+            \EscolaLms\Reports\Stats\Course\AverageTime::class,
+            \EscolaLms\Reports\Stats\Course\AverageTimePerTopic::class,
+            \EscolaLms\Reports\Stats\Course\MoneyEarned::class,
+            \EscolaLms\Reports\Stats\Course\PeopleBought::class,
+            \EscolaLms\Reports\Stats\Course\PeopleFinished::class,
+            \EscolaLms\Reports\Stats\Course\PeopleStarted::class,
+        ],
+        \EscolaLms\Courses\Models\Topic::class => [
+            \EscolaLms\Reports\Stats\Topic\AverageTime::class,
         ],
     ]
 ];

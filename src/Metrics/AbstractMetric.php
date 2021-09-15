@@ -3,6 +3,7 @@
 namespace EscolaLms\Reports\Metrics;
 
 use Cron\CronExpression;
+use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Config\Repository as Config;
@@ -12,6 +13,11 @@ abstract class AbstractMetric implements MetricContract
     protected bool $history;
     protected int $limit;
     protected string $cron;
+
+    public static function make(): MetricContract
+    {
+        return new static(config());
+    }
 
     protected function __construct(Config $config)
     {
