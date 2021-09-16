@@ -3,16 +3,10 @@
 namespace EscolaLms\Reports\Metrics;
 
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use Illuminate\Support\Collection;
 
-class CoursesPopularityMetric extends AbstractCourseMetric
+class CoursesPopularityMetric extends AbstractCoursesMetric
 {
-    public static function make(): MetricContract
-    {
-        return new self(config());
-    }
-
     public function calculate(?int $limit = null): Collection
     {
         return Course::withCount(['users'])

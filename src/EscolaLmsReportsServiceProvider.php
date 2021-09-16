@@ -5,6 +5,8 @@ namespace EscolaLms\Reports;
 use EscolaLms\Core\Providers\Injectable;
 use EscolaLms\Reports\Providers\AuthServiceProvider;
 use EscolaLms\Reports\Providers\ScheduleServiceProvider;
+use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
+use EscolaLms\Reports\Services\StatsService;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -14,7 +16,9 @@ class EscolaLmsReportsServiceProvider extends ServiceProvider
 {
     use Injectable;
 
-    private const CONTRACTS = [];
+    private const CONTRACTS = [
+        StatsServiceContract::class => StatsService::class
+    ];
 
     public function register()
     {

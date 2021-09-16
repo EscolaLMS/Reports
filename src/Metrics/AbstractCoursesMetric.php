@@ -5,7 +5,7 @@ namespace EscolaLms\Reports\Metrics;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Models\Report;
 
-abstract class AbstractCourseMetric extends AbstractMetric
+abstract class AbstractCoursesMetric extends AbstractMetric
 {
 
     public function calculateAndStore(?int $limit = null): Report

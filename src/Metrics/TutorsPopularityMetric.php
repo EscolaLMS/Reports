@@ -5,18 +5,12 @@ namespace EscolaLms\Reports\Metrics;
 use ArrayObject;
 use EscolaLms\Auth\Models\User;
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use EscolaLms\Reports\Models\Report;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class TutorsPopularityMetric extends AbstractMetric
 {
-    public static function make(): MetricContract
-    {
-        return new self(config());
-    }
-
     public function calculate(?int $limit = null): Collection
     {
         $courseTable = (new Course())->getTable();
