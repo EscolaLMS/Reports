@@ -10,7 +10,7 @@ class CourseStatsRequest extends FormRequest
 {
     public function authorize()
     {
-        return $this->user()->can('viewAny', Report::class) || $this->user()->can('update', Course::class);
+        return $this->user()->can('viewAny', Report::class) || $this->user()->can('update', $this->getCourse());
     }
 
     protected function prepareForValidation()

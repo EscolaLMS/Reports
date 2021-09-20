@@ -6,6 +6,6 @@ class AverageTime extends AbstractTopicStat
 {
     public function calculate(): int
     {
-        return $this->topic->progress()->average('seconds');
+        return $this->topic->progress()->average('seconds') ?? 0;
     }
 }

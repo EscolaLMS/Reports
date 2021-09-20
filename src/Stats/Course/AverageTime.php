@@ -26,6 +26,6 @@ class AverageTime extends AbstractCourseStat
             ->groupBy($courseTable . '.id', $courseProgressTable . '.user_id')
             ->get();
 
-        return $results->average('time');
+        return $results->average('time') ?? 0;
     }
 }
