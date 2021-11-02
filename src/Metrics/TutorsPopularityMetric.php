@@ -23,11 +23,14 @@ class TutorsPopularityMetric extends AbstractMetric
             ->join($courseUserPivot, $courseTable . '.id', '=', $courseUserPivot . '.course_id')
             ->groupBy($usersTable . '.id', $usersTable . '.email')
             ->orderBy('value', 'DESC')
+            ->whereNotNull($usersTable . '.id')
             ->take($limit ?? $this->defaultLimit())
             ->get(['id', 'label', 'value'])
             ->map(function ($item) {
                 if (is_object($item)) {
                     $item = new ArrayObject($item);
+                }
+                if (is_array($item) || is_a($item, ArrayObject::class)) {
                     $item['value'] = is_null($item['value']) ? 0 : $item['value'];
                 }
                 return $item;
@@ -47,7 +50,7 @@ class TutorsPopularityMetric extends AbstractMetric
 
         foreach ($results as $result) {
             $report->measurements()->create([
-                'label' => $result['label'],
+                'label' => $result['label'] ?? 'unknown',
                 'value' => $result['value'] ?? 0,
                 'measurable_id' => $result['id'],
                 'measurable_type' => User::class,

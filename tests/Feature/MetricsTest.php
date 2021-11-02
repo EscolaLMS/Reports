@@ -67,28 +67,26 @@ class MetricsTest extends TestCase
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
 
-        /** @var TestUser $student */
-        $student = $this->makeStudent();
-        $student->courses()->save($course);
-
-        /** @var TestUser $student2 */
-        $student2 = $this->makeStudent();
-        $student2->courses()->saveMany([$course, $course2]);
+        $students = User::factory()->count(200)->create();
+        $course->users()->attach($students);
+        $students = User::factory()->count(100)->create();
+        $course2->users()->attach($students);
 
         $results = CoursesPopularityMetric::make()->calculate();
 
         $this->assertEquals($course->getKey(), $results[0]['id']);
         $this->assertEquals($course->title, $results[0]['label']);
-        $this->assertEquals(2, $results[0]['value']);
+        $this->assertEquals(200, $results[0]['value']);
+
         $this->assertEquals($course2->getKey(), $results[1]['id']);
         $this->assertEquals($course2->title, $results[1]['label']);
-        $this->assertEquals(1, $results[1]['value']);
+        $this->assertEquals(100, $results[1]['value']);
 
         $report = CoursesPopularityMetric::make()->calculateAndStore();
 
         $measurement = $report->measurements()->where('measurable_type', '=', Course::class)->where('measurable_id', '=', $course->getKey())->first();
 
-        $this->assertEquals(2, $measurement->value);
+        $this->assertEquals(200, $measurement->value);
         $this->assertEquals($course->title, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
