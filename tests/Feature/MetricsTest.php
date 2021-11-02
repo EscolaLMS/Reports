@@ -7,6 +7,7 @@ use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Reports\Metrics\CoursesMoneySpentMetric;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Metrics\CoursesSecondsSpentMetric;
@@ -24,6 +25,9 @@ class MetricsTest extends TestCase
 
     public function testCoursesSecondsSpentMetric(): void
     {
+        Course::truncate();
+        CourseProgress::truncate();
+
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
 
@@ -63,6 +67,8 @@ class MetricsTest extends TestCase
 
     public function testCoursesPopularityMetric()
     {
+        Course::truncate();
+
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
 
@@ -95,6 +101,9 @@ class MetricsTest extends TestCase
 
     public function testTutorsPopularityMetric()
     {
+        User::truncate();
+        Course::truncate();
+
         $tutor = $this->makeInstructor();
         $course = $this->createCourseWithLessonAndTopic();
         $course->author()->associate($tutor)->save();

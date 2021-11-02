@@ -24,6 +24,11 @@ class CoursesSecondsSpentMetric extends AbstractCoursesMetric
             ->groupBy($courseTable . '.id')
             ->orderBy('value', 'DESC')
             ->take($limit ?? $this->defaultLimit())
-            ->get(['id', 'label', 'value']);
+            ->get(['id', 'label', 'value'])
+            ->map(function (Course $course) {
+                $course->value = is_null($course->value) ? 0 : $course->value;
+                return $course;
+            })
+            ->sortByDesc('value');
     }
 }

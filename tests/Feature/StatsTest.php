@@ -4,11 +4,14 @@ namespace EscolaLms\Reports\Tests\Feature;
 
 use EscolaLms\Cart\Events\OrderPaid;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
-use EscolaLms\Cart\Services\Contracts\OrderProcessingServiceContract;
 use EscolaLms\Cart\Services\OrderProcessingService;
+use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
+use EscolaLms\Courses\Models\Course;
+use EscolaLms\Courses\Models\CourseProgress;
+use EscolaLms\Courses\Models\Group;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
@@ -115,6 +118,11 @@ class StatsTest extends TestCase
 
     public function testPeopleFinished()
     {
+        Course::truncate();
+        CourseProgress::truncate();
+        Group::truncate();
+        User::truncate();
+
         $course = $this->createCourseWithLessonAndTopic();
         /** @var TestUser $student */
         $student = $this->makeStudent();
@@ -128,12 +136,12 @@ class StatsTest extends TestCase
         $this->progressUserInCourse($student, $course, 60, ProgressStatus::COMPLETE);
         $this->progressUserInCourse($student2, $course, 60);
 
-        $result = PeopleFinished::make($course)->calculate();
+        $result = PeopleFinished::make($course->refresh())->calculate();
         $this->assertEquals(1, $result);
 
         $this->progressUserInCourse($student2, $course, 60, ProgressStatus::COMPLETE);
 
-        $result = PeopleFinished::make($course)->calculate();
+        $result = PeopleFinished::make($course->refresh())->calculate();
         $this->assertEquals(2, $result);
     }
 
