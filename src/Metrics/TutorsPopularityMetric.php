@@ -25,7 +25,14 @@ class TutorsPopularityMetric extends AbstractMetric
             ->orderBy('value', 'DESC')
             ->take($limit ?? $this->defaultLimit())
             ->get(['id', 'label', 'value'])
-            ->map(fn ($item) => is_object($item) ? new ArrayObject($item) : $item);
+            ->map(function ($item) {
+                if (is_object($item)) {
+                    $item = new ArrayObject($item);
+                    $item['value'] = is_null($item['value']) ? 0 : $item['value'];
+                }
+                return $item;
+            })
+            ->sortByDesc('value');
     }
 
     public function calculateAndStore(?int $limit = null): Report

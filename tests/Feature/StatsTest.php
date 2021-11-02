@@ -118,11 +118,6 @@ class StatsTest extends TestCase
 
     public function testPeopleFinished()
     {
-        Course::truncate();
-        CourseProgress::truncate();
-        Group::truncate();
-        User::truncate();
-
         $course = $this->createCourseWithLessonAndTopic();
         /** @var TestUser $student */
         $student = $this->makeStudent();
@@ -134,7 +129,7 @@ class StatsTest extends TestCase
         $this->assertEquals(0, $result);
 
         $this->progressUserInCourse($student, $course, 60, ProgressStatus::COMPLETE);
-        $this->progressUserInCourse($student2, $course, 60);
+        $this->progressUserInCourse($student2, $course, 60, ProgressStatus::INCOMPLETE);
 
         $result = PeopleFinished::make($course->refresh())->calculate();
         $this->assertEquals(1, $result);

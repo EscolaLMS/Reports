@@ -25,9 +25,6 @@ class MetricsTest extends TestCase
 
     public function testCoursesSecondsSpentMetric(): void
     {
-        Course::truncate();
-        CourseProgress::truncate();
-
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
 
@@ -35,23 +32,23 @@ class MetricsTest extends TestCase
         $student = $this->makeStudent();
         $student->courses()->saveMany([$course, $course2]);
 
-        $this->progressUserInCourse($student, $course, 60);
+        $this->progressUserInCourse($student, $course, 999999);
 
         $results = CoursesSecondsSpentMetric::make()->calculate();
 
-        $this->assertEquals(60, $results[0]['value']);
+        $this->assertEquals(999999, $results[0]['value']);
         $this->assertEquals($course->title, $results[0]['label']);
         $this->assertEquals($course->id, $results[0]['id']);
 
-        $this->progressUserInCourse($student, $course, 120);
-        $this->progressUserInCourse($student, $course2, 60);
+        $this->progressUserInCourse($student, $course, 888888);
+        $this->progressUserInCourse($student, $course2, 777777);
 
         $results = CoursesSecondsSpentMetric::make()->calculate();
 
-        $this->assertEquals(120, $results[0]['value']);
+        $this->assertEquals(888888, $results[0]['value']);
         $this->assertEquals($course->title, $results[0]['label']);
         $this->assertEquals($course->id, $results[0]['id']);
-        $this->assertEquals(60, $results[1]['value']);
+        $this->assertEquals(777777, $results[1]['value']);
         $this->assertEquals($course2->title, $results[1]['label']);
         $this->assertEquals($course2->id, $results[1]['id']);
 
@@ -59,7 +56,7 @@ class MetricsTest extends TestCase
 
         $measurement = $report->measurements()->where('measurable_type', '=', Course::class)->where('measurable_id', '=', $course->getKey())->first();
 
-        $this->assertEquals(120, $measurement->value);
+        $this->assertEquals(888888, $measurement->value);
         $this->assertEquals($course->title, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
@@ -67,8 +64,6 @@ class MetricsTest extends TestCase
 
     public function testCoursesPopularityMetric()
     {
-        Course::truncate();
-
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
 
@@ -101,9 +96,6 @@ class MetricsTest extends TestCase
 
     public function testTutorsPopularityMetric()
     {
-        User::truncate();
-        Course::truncate();
-
         $tutor = $this->makeInstructor();
         $course = $this->createCourseWithLessonAndTopic();
         $course->author()->associate($tutor)->save();
@@ -114,27 +106,28 @@ class MetricsTest extends TestCase
         $course3 = $this->createCourseWithLessonAndTopic();
         $course3->author()->associate($tutor2)->save();
 
-        $students = User::factory()->count(5)->create();
+        $students = User::factory()->count(100)->create();
         $course->users()->attach($students);
-        $students = User::factory()->count(5)->create();
+        $students = User::factory()->count(100)->create();
         $course2->users()->attach($students);
-        $students = User::factory()->count(5)->create();
+
+        $students = User::factory()->count(100)->create();
         $course3->users()->attach($students);
 
         $results = TutorsPopularityMetric::make()->calculate();
 
         $this->assertEquals($tutor->getKey(), $results[0]['id']);
         $this->assertEquals($tutor->email, $results[0]['label']);
-        $this->assertEquals(10, $results[0]['value']);
+        $this->assertEquals(200, $results[0]['value']);
         $this->assertEquals($tutor2->getKey(), $results[1]['id']);
         $this->assertEquals($tutor2->email, $results[1]['label']);
-        $this->assertEquals(5, $results[1]['value']);
+        $this->assertEquals(100, $results[1]['value']);
 
         $report = TutorsPopularityMetric::make()->calculateAndStore();
 
         $measurement = $report->measurements()->where('measurable_type', '=', AuthUser::class)->where('measurable_id', '=', $tutor->getKey())->first();
 
-        $this->assertEquals(10, $measurement->value);
+        $this->assertEquals(200, $measurement->value);
         $this->assertEquals($tutor->email, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($tutor->getKey(), $measurement->measurable->getKey());
