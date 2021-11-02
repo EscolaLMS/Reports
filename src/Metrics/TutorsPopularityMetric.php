@@ -32,7 +32,8 @@ class TutorsPopularityMetric extends AbstractMetric
                 }
                 return $item;
             })
-            ->sortByDesc('value');
+            ->sortByDesc('value')
+            ->values();
     }
 
     public function calculateAndStore(?int $limit = null): Report

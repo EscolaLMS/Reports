@@ -23,9 +23,9 @@ trait CoursesTestingTrait
     {
         return Course::factory()
             ->has(
-                Lesson::factory()
+                Lesson::factory(['active' => true])
                     ->has(
-                        Topic::factory()
+                        Topic::factory(['active' => true])
                             ->count($topic_count)
                             ->afterCreating(
                                 function (Topic $topic) {
@@ -34,6 +34,7 @@ trait CoursesTestingTrait
                             )
                     )
             )->create([
+                'active' => true,
                 'base_price' => 1000
             ]);
     }

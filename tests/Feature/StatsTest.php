@@ -131,12 +131,12 @@ class StatsTest extends TestCase
         $this->progressUserInCourse($student, $course, 60, ProgressStatus::COMPLETE);
         $this->progressUserInCourse($student2, $course, 60, ProgressStatus::INCOMPLETE);
 
-        $result = PeopleFinished::make($course->refresh())->calculate();
+        $result = PeopleFinished::make($course)->calculate();
         $this->assertEquals(1, $result);
 
         $this->progressUserInCourse($student2, $course, 60, ProgressStatus::COMPLETE);
 
-        $result = PeopleFinished::make($course->refresh())->calculate();
+        $result = PeopleFinished::make($course)->calculate();
         $this->assertEquals(2, $result);
     }
 
@@ -155,12 +155,12 @@ class StatsTest extends TestCase
         $this->progressUserInCourse($student, $course, 60, ProgressStatus::COMPLETE);
         $this->progressUserInCourse($student2, $course, 60, ProgressStatus::INCOMPLETE);
 
-        $result = PeopleStarted::make($course->refresh())->calculate();
+        $result = PeopleStarted::make($course)->calculate();
         $this->assertEquals(1, $result);
 
         $this->progressUserInCourse($student2, $course, 60, ProgressStatus::COMPLETE);
 
-        $result = PeopleStarted::make($course->refresh())->calculate();
+        $result = PeopleStarted::make($course)->calculate();
         $this->assertEquals(0, $result);
     }
 }

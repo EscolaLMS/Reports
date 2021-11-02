@@ -29,6 +29,7 @@ class CoursesSecondsSpentMetric extends AbstractCoursesMetric
                 $course->value = is_null($course->value) ? 0 : $course->value;
                 return $course;
             })
-            ->sortByDesc('value');
+            ->sortByDesc('value')
+            ->values();
     }
 }
