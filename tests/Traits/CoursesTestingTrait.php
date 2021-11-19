@@ -9,16 +9,15 @@ use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
-use EscolaLms\Courses\Models\TopicContent\RichText;
 use EscolaLms\Courses\Repositories\Contracts\CourseProgressRepositoryContract;
 use EscolaLms\Courses\Repositories\CourseProgressRepository;
 use EscolaLms\Courses\Services\Contracts\ProgressServiceContract;
 use EscolaLms\Courses\Services\ProgressService;
 use EscolaLms\Payments\Models\Payment;
+use EscolaLms\TopicTypes\Models\TopicContent\RichText;
 
 trait CoursesTestingTrait
 {
-
     private function createCourseWithLessonAndTopic(int $topic_count = 1): Course
     {
         return Course::factory()
@@ -35,7 +34,7 @@ trait CoursesTestingTrait
                     )
             )->create([
                 'active' => true,
-                'base_price' => 1000
+                'base_price' => 1000,
             ]);
     }
 
@@ -72,12 +71,12 @@ trait CoursesTestingTrait
             fn (Order $order) => $order->items()->save(new OrderItem([
                 'quantity' => 1,
                 'buyable_id' => $course->getKey(),
-                'buyable_type' => get_class($course)
+                'buyable_type' => get_class($course),
             ]))
         )->create([
             'user_id' => $user->getKey(),
-            'total' =>  $course->base_price,
-            'subtotal' =>  $course->base_price,
+            'total' => $course->base_price,
+            'subtotal' => $course->base_price,
         ]);
     }
 }
