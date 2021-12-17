@@ -2,9 +2,7 @@
 
 namespace EscolaLms\Reports\Providers;
 
-use EscolaLms\Reports\Models\Measurement;
 use EscolaLms\Reports\Models\Report;
-use EscolaLms\Reports\Policies\MeasurementPolicy;
 use EscolaLms\Reports\Policies\ReportPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;

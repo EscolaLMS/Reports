@@ -2,16 +2,12 @@
 
 namespace EscolaLms\Reports\Tests\Feature;
 
-use EscolaLms\Cart\Events\OrderPaid;
+use EscolaLms\Cart\Events\EscolaLmsCartOrderPaidTemplateEvent;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
 use EscolaLms\Cart\Services\OrderProcessingService;
-use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
-use EscolaLms\Courses\Models\Course;
-use EscolaLms\Courses\Models\CourseProgress;
-use EscolaLms\Courses\Models\Group;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
@@ -106,8 +102,8 @@ class StatsTest extends TestCase
         $order2 = $this->makePaidOrder($student2, $course);
 
         $orderProcessingService = new OrderProcessingService();
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new OrderPaid($order, $student));
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new OrderPaid($order2, $student2));
+        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new EscolaLmsCartOrderPaidTemplateEvent($student, $order));
+        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new EscolaLmsCartOrderPaidTemplateEvent($student2, $order));
 
         $result = PeopleBought::make($course)->calculate();
         $this->assertEquals(2, $result);

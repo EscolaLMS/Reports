@@ -3,7 +3,7 @@
 namespace EscolaLms\Reports\Metrics;
 
 use ArrayObject;
-use EscolaLms\Auth\Models\User;
+use EscolaLms\Core\Models\User;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Models\Report;
 use Illuminate\Support\Collection;
