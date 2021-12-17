@@ -2,12 +2,10 @@
 
 namespace EscolaLms\Reports\Tests\Feature;
 
-use EscolaLms\Auth\Models\User as AuthUser;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Reports\Metrics\CoursesMoneySpentMetric;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Metrics\CoursesSecondsSpentMetric;
@@ -123,7 +121,7 @@ class MetricsTest extends TestCase
 
         $report = TutorsPopularityMetric::make()->calculateAndStore();
 
-        $measurement = $report->measurements()->where('measurable_type', '=', AuthUser::class)->where('measurable_id', '=', $tutor->getKey())->first();
+        $measurement = $report->measurements()->where('measurable_type', '=', User::class)->where('measurable_id', '=', $tutor->getKey())->first();
 
         $this->assertEquals(200, $measurement->value);
         $this->assertEquals($tutor->email, $measurement->label);
