@@ -22,7 +22,7 @@ class CoursesMoneySpentMetric extends AbstractCoursesMetric
         return Course::selectRaw($courseTable . '.id, ' . $courseTable . '.title as label, SUM(' . $orderItemTable . '.quantity * ' . $courseTable . '.base_price) as value')
             ->leftJoin($orderItemTable, fn (JoinClause $join) => $join->where($orderItemTable . '.buyable_id', '=', DB::raw($courseTable . '.id'))->whereIn($orderItemTable . '.buyable_type', [Course::class, CartCourse::class]))
             ->rightJoin($orderTable, fn (JoinClause $join) => $join->where($orderTable . '.id', '=', DB::raw($orderItemTable . '.order_id'))->where($orderTable . '.status', '=', OrderStatus::PAID))
-            ->groupBy($courseTable . '.id')
+            ->groupBy($courseTable . '.id', $courseTable . '.title')
             ->orderBy('value', 'DESC')
             ->take($limit ?? $this->defaultLimit())
             ->get(['id', 'label', 'value']);

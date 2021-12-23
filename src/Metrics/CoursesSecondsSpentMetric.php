@@ -21,7 +21,7 @@ class CoursesSecondsSpentMetric extends AbstractCoursesMetric
             ->join($lessonTable, $courseTable . '.id', '=', $lessonTable . '.course_id')
             ->join($topicTable, $lessonTable . '.id', '=', $topicTable . '.lesson_id')
             ->join($courseProgressTable, $topicTable . '.id', '=', $courseProgressTable . '.topic_id')
-            ->groupBy($courseTable . '.id')
+            ->groupBy($courseTable . '.id', $courseTable . '.title')
             ->orderBy('value', 'DESC')
             ->take($limit ?? $this->defaultLimit())
             ->get(['id', 'label', 'value'])
