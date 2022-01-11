@@ -14,7 +14,6 @@ use EscolaLms\Courses\Repositories\CourseProgressRepository;
 use EscolaLms\Courses\Services\Contracts\ProgressServiceContract;
 use EscolaLms\Courses\Services\ProgressService;
 use EscolaLms\Payments\Models\Payment;
-use EscolaLms\TopicTypes\Models\TopicContent\RichText;
 
 trait CoursesTestingTrait
 {
@@ -26,11 +25,6 @@ trait CoursesTestingTrait
                     ->has(
                         Topic::factory(['active' => true])
                             ->count($topic_count)
-                            ->afterCreating(
-                                function (Topic $topic) {
-                                    $topic->topicable()->associate(RichText::factory()->create())->save();
-                                }
-                            )
                     )
             )->create([
                 'active' => true,
