@@ -3,10 +3,9 @@
 namespace EscolaLms\Reports\Metrics;
 
 use Cron\CronExpression;
-use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Metrics\Contracts\MetricContract;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Console\Scheduling\Schedule;
 
 abstract class AbstractMetric implements MetricContract
 {

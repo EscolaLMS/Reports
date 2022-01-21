@@ -94,21 +94,21 @@ class MetricsTest extends TestCase
     {
         $tutor = $this->makeInstructor();
         $course = $this->createCourseWithLessonAndTopic();
-        $course->author()->associate($tutor)->save();
+        $course->authors()->sync($tutor);
         $course2 = $this->createCourseWithLessonAndTopic();
-        $course2->author()->associate($tutor)->save();
+        $course2->authors()->sync($tutor);
 
         $tutor2 = $this->makeInstructor();
         $course3 = $this->createCourseWithLessonAndTopic();
-        $course3->author()->associate($tutor2)->save();
+        $course3->authors()->sync($tutor2);
 
         $students = User::factory()->count(100)->create();
-        $course->users()->attach($students);
+        $course->users()->sync($students);
         $students = User::factory()->count(100)->create();
-        $course2->users()->attach($students);
+        $course2->users()->sync($students);
 
         $students = User::factory()->count(100)->create();
-        $course3->users()->attach($students);
+        $course3->users()->sync($students);
 
         $results = TutorsPopularityMetric::make()->calculate();
 
