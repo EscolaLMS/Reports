@@ -16,10 +16,12 @@ class TutorsPopularityMetric extends AbstractMetric
         $courseTable = (new Course())->getTable();
         $usersTable = (new User())->getTable();
         $courseUserPivot = (new Course())->users()->getTable();
+        $courseAuthorPivot = (new Course())->authors()->getTable();
 
         return DB::table($usersTable)
             ->selectRaw($usersTable . '.id, ' . $usersTable . '.email as label, COUNT(' . $courseUserPivot . '.user_id) as value')
-            ->rightJoin($courseTable,  $courseTable . '.author_id', '=', $usersTable . '.id')
+            ->rightJoin($courseAuthorPivot,  $courseAuthorPivot . '.author_id', '=', $usersTable . '.id')
+            ->rightJoin($courseTable,  $courseTable . '.id', '=', $courseAuthorPivot . '.course_id')
             ->join($courseUserPivot, $courseTable . '.id', '=', $courseUserPivot . '.course_id')
             ->groupBy($usersTable . '.id', $usersTable . '.email')
             ->orderBy('value', 'DESC')
@@ -58,5 +60,15 @@ class TutorsPopularityMetric extends AbstractMetric
         }
 
         return $report;
+    }
+
+    public function requiredPackage(): string
+    {
+        return 'escolalms/courses';
+    }
+
+    public function requiredPackageInstalled(): bool
+    {
+        return class_exists(Course::class);
     }
 }

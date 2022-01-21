@@ -28,4 +28,14 @@ abstract class AbstractCoursesMetric extends AbstractMetric
 
         return $report;
     }
+
+    public function requiredPackage(): string
+    {
+        return 'escolalms/courses';
+    }
+
+    public function requiredPackageInstalled(): bool
+    {
+        return class_exists(Course::class);
+    }
 }
