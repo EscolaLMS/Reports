@@ -60,7 +60,7 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
 
         $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesSecondsSpentMetric::make()->requiredPackageInstalled());
-        $this->assertIsString(CoursesSecondsSpentMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesSecondsSpentMetric::make()->requiredPackage());
     }
 
     public function testCoursesPopularityMetric()
@@ -93,7 +93,7 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
 
         $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesPopularityMetric::make()->requiredPackageInstalled());
-        $this->assertIsString(CoursesPopularityMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesPopularityMetric::make()->requiredPackage());
     }
 
     public function testTutorsPopularityMetric()
@@ -135,7 +135,7 @@ class MetricsTest extends TestCase
         $this->assertEquals($tutor->getKey(), $measurement->measurable->getKey());
 
         $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), TutorsPopularityMetric::make()->requiredPackageInstalled());
-        $this->assertIsString(TutorsPopularityMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(TutorsPopularityMetric::make()->requiredPackage());
     }
 
     public function testCourseMoneySpentMetric()
@@ -169,6 +169,6 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
 
         $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesMoneySpentMetric::make()->requiredPackageInstalled());
-        $this->assertIsString(CoursesMoneySpentMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesMoneySpentMetric::make()->requiredPackage());
     }
 }
