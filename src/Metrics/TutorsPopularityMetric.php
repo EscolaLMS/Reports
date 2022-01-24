@@ -5,6 +5,7 @@ namespace EscolaLms\Reports\Metrics;
 use ArrayObject;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Courses\Models\CourseAuthorPivot;
 use EscolaLms\Reports\Models\Report;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -13,14 +14,14 @@ class TutorsPopularityMetric extends AbstractMetric
 {
     public function calculate(?int $limit = null): Collection
     {
-        $courseTable = (new Course())->getTable();
+        $courseAuthorTable = (new CourseAuthorPivot())->getTable();
         $usersTable = (new User())->getTable();
         $courseUserPivot = (new Course())->users()->getTable();
 
         return DB::table($usersTable)
             ->selectRaw($usersTable . '.id, ' . $usersTable . '.email as label, COUNT(' . $courseUserPivot . '.user_id) as value')
-            ->rightJoin($courseTable,  $courseTable . '.author_id', '=', $usersTable . '.id')
-            ->join($courseUserPivot, $courseTable . '.id', '=', $courseUserPivot . '.course_id')
+            ->rightJoin($courseAuthorTable,  $courseAuthorTable . '.author_id', '=', $usersTable . '.id')
+            ->join($courseUserPivot, $courseAuthorTable . '.course_id', '=', $courseUserPivot . '.course_id')
             ->groupBy($usersTable . '.id', $usersTable . '.email')
             ->orderBy('value', 'DESC')
             ->whereNotNull($usersTable . '.id')
