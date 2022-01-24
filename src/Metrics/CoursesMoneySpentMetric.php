@@ -24,7 +24,18 @@ class CoursesMoneySpentMetric extends AbstractCoursesMetric
             ->rightJoin($orderTable, fn (JoinClause $join) => $join->where($orderTable . '.id', '=', DB::raw($orderItemTable . '.order_id'))->where($orderTable . '.status', '=', OrderStatus::PAID))
             ->groupBy($courseTable . '.id', $courseTable . '.title')
             ->orderBy('value', 'DESC')
+            ->whereNotNull($courseTable . '.id')
             ->take($limit ?? $this->defaultLimit())
             ->get(['id', 'label', 'value']);
+    }
+
+    public function requiredPackage(): string
+    {
+        return 'escolalms/courses & escolalms/cart';
+    }
+
+    public function requiredPackageInstalled(): bool
+    {
+        return class_exists(Course::class) && class_exists(Order::class);
     }
 }

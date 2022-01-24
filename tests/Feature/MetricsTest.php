@@ -58,6 +58,9 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->title, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
+
+        $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesSecondsSpentMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesSecondsSpentMetric::make()->requiredPackage());
     }
 
     public function testCoursesPopularityMetric()
@@ -88,6 +91,9 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->title, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
+
+        $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesPopularityMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesPopularityMetric::make()->requiredPackage());
     }
 
     public function testTutorsPopularityMetric()
@@ -103,12 +109,12 @@ class MetricsTest extends TestCase
         $course3->authors()->sync($tutor2);
 
         $students = User::factory()->count(100)->create();
-        $course->users()->attach($students);
+        $course->users()->sync($students);
         $students = User::factory()->count(100)->create();
-        $course2->users()->attach($students);
+        $course2->users()->sync($students);
 
         $students = User::factory()->count(100)->create();
-        $course3->users()->attach($students);
+        $course3->users()->sync($students);
 
         $results = TutorsPopularityMetric::make()->calculate();
 
@@ -127,6 +133,9 @@ class MetricsTest extends TestCase
         $this->assertEquals($tutor->email, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($tutor->getKey(), $measurement->measurable->getKey());
+
+        $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), TutorsPopularityMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(TutorsPopularityMetric::make()->requiredPackage());
     }
 
     public function testCourseMoneySpentMetric()
@@ -158,5 +167,8 @@ class MetricsTest extends TestCase
         $this->assertEquals($course->title, $measurement->label);
         $this->assertEquals($report->getKey(), $measurement->report->getKey());
         $this->assertEquals($course->getKey(), $measurement->measurable->getKey());
+
+        $this->assertEquals(class_exists(\EscolaLms\Courses\EscolaLmsCourseServiceProvider::class), CoursesMoneySpentMetric::make()->requiredPackageInstalled());
+        $this->assertIsString(CoursesMoneySpentMetric::make()->requiredPackage());
     }
 }
