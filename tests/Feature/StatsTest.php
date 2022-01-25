@@ -2,7 +2,7 @@
 
 namespace EscolaLms\Reports\Tests\Feature;
 
-use EscolaLms\Cart\Events\EscolaLmsCartOrderPaidTemplateEvent;
+use EscolaLms\Cart\Events\CartOrderPaid;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
 use EscolaLms\Cart\Services\OrderProcessingService;
 use EscolaLms\Core\Tests\ApiTestTrait;
@@ -102,8 +102,8 @@ class StatsTest extends TestCase
         $order2 = $this->makePaidOrder($student2, $course);
 
         $orderProcessingService = new OrderProcessingService();
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new EscolaLmsCartOrderPaidTemplateEvent($student, $order));
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new EscolaLmsCartOrderPaidTemplateEvent($student2, $order));
+        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new CartOrderPaid($student, $order));
+        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new CartOrderPaid($student2, $order));
 
         $result = PeopleBought::make($course)->calculate();
         $this->assertEquals(2, $result);

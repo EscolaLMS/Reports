@@ -5,6 +5,7 @@ namespace EscolaLms\Reports\Tests\Traits;
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Core\Models\User;
+use EscolaLms\Courses\Enum\CourseStatusEnum;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\Lesson;
@@ -27,7 +28,7 @@ trait CoursesTestingTrait
                             ->count($topic_count)
                     )
             )->create([
-                'active' => true,
+                'status' => CourseStatusEnum::PUBLISHED,
                 'base_price' => 1000,
             ]);
     }
