@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Tests;
 
+use EscolaLms\Cart\CartServiceProvider;
 use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
 use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
@@ -10,6 +11,7 @@ use EscolaLms\Reports\Database\Seeders\ReportsPermissionSeeder;
 use EscolaLms\Reports\EscolaLmsReportsServiceProvider;
 use EscolaLms\Reports\Tests\Models\Client;
 use EscolaLms\Reports\Tests\Models\TestUser;
+use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
@@ -33,6 +35,8 @@ class TestCase extends CoreTestCase
             EscolaLmsReportsServiceProvider::class,
             EscolaLmsCourseServiceProvider::class,
             PaymentsServiceProvider::class,
+            CartServiceProvider::class,
+            EscolaLmsScormServiceProvider::class,
         ];
     }
 
