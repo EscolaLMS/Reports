@@ -203,6 +203,7 @@ class ReportsTest extends TestCase
 
     public function testReportLimit()
     {
+        Course::truncate();
         $admin = $this->makeAdmin();
 
         $course = Course::factory()->create();
