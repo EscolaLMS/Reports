@@ -4,6 +4,8 @@ namespace EscolaLms\Reports\Tests\Api\Admin;
 
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
+use EscolaLms\Courses\Models\Lesson;
+use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Models\Report;
@@ -11,6 +13,7 @@ use EscolaLms\Reports\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Carbon;
+
 
 class ReportsTest extends TestCase
 {
@@ -203,7 +206,10 @@ class ReportsTest extends TestCase
 
     public function testReportLimit()
     {
-        Course::truncate();
+        Topic::query()->delete();
+        Lesson::query()->delete();
+        Course::query()->delete();
+
         $admin = $this->makeAdmin();
 
         $course = Course::factory()->create();
