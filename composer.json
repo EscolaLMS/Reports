@@ -12,7 +12,7 @@
     "phpunit/phpunit": "^9.0",
     "orchestra/testbench": ">=5.0",
     "escolalms/courses": ">=0.0",
-    "escolalms/cart": ">=0.0"
+    "escolalms/cart": "0.1.19"
   },
   "suggest": {
     "escolalms/courses": "Required for reports about Courses",
