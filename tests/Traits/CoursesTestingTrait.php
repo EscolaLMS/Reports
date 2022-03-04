@@ -4,6 +4,9 @@ namespace EscolaLms\Reports\Tests\Traits;
 
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
+use EscolaLms\Cart\Models\Product;
+use EscolaLms\Cart\Models\ProductProductable;
+use EscolaLms\Cart\Services\Contracts\ProductServiceContract;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Courses\Enum\CourseStatusEnum;
 use EscolaLms\Courses\Enum\ProgressStatus;
@@ -58,20 +61,34 @@ trait CoursesTestingTrait
 
     private function makePaidOrder(User $user, Course $course): Order
     {
+        $productable = app(ProductServiceContract::class)->findProductable($course->getMorphClass(), $course->getKey());
+        $product = app(ProductServiceContract::class)->findSingleProductForProductable($productable);
+        if (is_null($product)) {
+            $product = Product::factory()->create([
+                'name' => 'Product for course' . $course->getKey(),
+                'price' => 1000,
+            ]);
+            $product->productables()->save(new ProductProductable([
+                'productable_type' => $course->getMorphClass(),
+                'productable_id' => $course->getKey()
+            ]));
+        }
+
         return Order::factory()->has(Payment::factory()->state([
-            'amount' => $course->base_price,
+            'amount' => $product->price,
             'billable_id' => $user->getKey(),
             'billable_type' => get_class($user),
         ]))->afterCreating(
             fn (Order $order) => $order->items()->save(new OrderItem([
+                'price' => $product->price,
                 'quantity' => 1,
-                'buyable_id' => $course->getKey(),
-                'buyable_type' => get_class($course),
+                'buyable_id' => $product->getKey(),
+                'buyable_type' => get_class($product),
             ]))
         )->create([
             'user_id' => $user->getKey(),
-            'total' => $course->base_price,
-            'subtotal' => $course->base_price,
+            'total' => $product->price,
+            'subtotal' => $product->price,
         ]);
     }
 }
