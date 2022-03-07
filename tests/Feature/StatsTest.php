@@ -4,8 +4,7 @@ namespace EscolaLms\Reports\Tests\Feature;
 
 use EscolaLms\Cart\Events\CartOrderPaid;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
-use EscolaLms\Cart\Services\Contracts\OrderProcessingServiceContract;
-use EscolaLms\Cart\Services\OrderProcessingService;
+use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
@@ -102,9 +101,8 @@ class StatsTest extends TestCase
         $order = $this->makePaidOrder($student, $course);
         $order2 = $this->makePaidOrder($student2, $course);
 
-        $orderProcessingService = app(OrderProcessingServiceContract::class);
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new CartOrderPaid($student, $order));
-        (new AttachOrderedCoursesToUser($orderProcessingService))->handle(new CartOrderPaid($student2, $order));
+        app(OrderServiceContract::class)->processOrderItems($order);
+        app(OrderServiceContract::class)->processOrderItems($order2);
 
         $result = PeopleBought::make($course)->calculate();
         $this->assertEquals(2, $result);

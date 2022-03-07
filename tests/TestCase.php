@@ -2,7 +2,8 @@
 
 namespace EscolaLms\Reports\Tests;
 
-use EscolaLms\Cart\CartServiceProvider;
+use EscolaLms\Cart\EscolaLmsCartServiceProvider;
+use EscolaLms\Cart\Facades\Shop;
 use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
 use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
@@ -10,6 +11,7 @@ use EscolaLms\Payments\Providers\PaymentsServiceProvider;
 use EscolaLms\Reports\Database\Seeders\ReportsPermissionSeeder;
 use EscolaLms\Reports\EscolaLmsReportsServiceProvider;
 use EscolaLms\Reports\Tests\Models\Client;
+use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
 use Laravel\Passport\Passport;
@@ -23,6 +25,8 @@ class TestCase extends CoreTestCase
         parent::setUp();
         Passport::useClientModel(Client::class);
         $this->seed(ReportsPermissionSeeder::class);
+
+        Shop::registerProductableClass(Course::class);
     }
 
     protected function getPackageProviders($app)
@@ -35,7 +39,7 @@ class TestCase extends CoreTestCase
             EscolaLmsReportsServiceProvider::class,
             EscolaLmsCourseServiceProvider::class,
             PaymentsServiceProvider::class,
-            CartServiceProvider::class,
+            EscolaLmsCartServiceProvider::class,
             EscolaLmsScormServiceProvider::class,
         ];
     }

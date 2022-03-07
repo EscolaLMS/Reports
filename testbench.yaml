@@ -13,6 +13,6 @@ providers:
   - EscolaLms\Categories\EscolaLmsCategoriesServiceProvider
   - EscolaLms\Core\EscolaLmsServiceProvider
   - EscolaLms\Auth\EscolaLmsAuthServiceProvider
-  - EscolaLms\Courses\EscolaLmsCourseServiceProvider
-  - EscolaLms\Cart\CartServiceProvider
   - EscolaLms\Payments\Providers\PaymentsServiceProvider
+  - EscolaLms\Courses\EscolaLmsCourseServiceProvider
+  - EscolaLms\Cart\EscolaLmsCartServiceProvider
