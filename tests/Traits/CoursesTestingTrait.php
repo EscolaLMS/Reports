@@ -32,7 +32,6 @@ trait CoursesTestingTrait
                     )
             )->create([
                 'status' => CourseStatusEnum::PUBLISHED,
-                'base_price' => 1000,
             ]);
     }
 
