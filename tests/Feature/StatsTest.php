@@ -88,7 +88,7 @@ class StatsTest extends TestCase
 
         $result = MoneyEarned::make($course)->calculate();
 
-        $this->assertEquals(1000, $result);
+        $this->assertEquals(2000, $result);
     }
 
     public function testPeopleBought()
