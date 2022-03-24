@@ -2,7 +2,6 @@
 
 namespace EscolaLms\Reports;
 
-use EscolaLms\Core\Providers\Injectable;
 use EscolaLms\Reports\Providers\AuthServiceProvider;
 use EscolaLms\Reports\Providers\ScheduleServiceProvider;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
@@ -14,16 +13,12 @@ use Illuminate\Support\ServiceProvider;
  */
 class EscolaLmsReportsServiceProvider extends ServiceProvider
 {
-    use Injectable;
-
-    private const CONTRACTS = [
+    public $singletons = [
         StatsServiceContract::class => StatsService::class
     ];
 
     public function register()
     {
-        $this->injectContract(self::CONTRACTS);
-
         $this->mergeConfigFrom(
             __DIR__ . '/config.php',
             'reports'
