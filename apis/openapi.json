@@ -1,174 +1,67 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "EscolaLMS Tags",
-        "version": "0.1"
+        "title": "EscolaLMS",
+        "version": "0.0.1"
     },
     "paths": {
-        "/api/tags": {
+        "/api/admin/reports/metrics": {
             "get": {
                 "tags": [
-                    "tags"
+                    "Admin Reports"
                 ],
-                "description": "Display a listing of the Tag",
-                "operationId": "EscolaLms\\Tags\\Http\\Controllers\\Swagger\\TagsApiSwagger::index",
+                "summary": "Get list of available metrics",
+                "description": "",
+                "operationId": "01654091932139219ab43cdb13aedce3",
                 "responses": {
                     "200": {
-                        "description": "successful operation",
+                        "description": "successful operation, returns User data",
                         "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "422": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {}
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "summary": "Destroy Tags",
-                "description": "Destroy Tags",
-                "operationId": "EscolaLms\\Tags\\Http\\Controllers\\Swagger\\TagsApiSwagger::destroy",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "tags": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "": {
-                                                    "type": "integer",
-                                                    "example": "1"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "type": "object"
+                            "application/json": {
+                                "schema": {}
                             }
                         }
                     }
                 },
-                "responses": {
-                    "200": {
-                        "description": "successful operation",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "422": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {}
-                        }
+                "security": [
+                    {
+                        "passport": []
                     }
-                }
+                ]
             }
         },
-        "/api/tags/unique": {
+        "/api/admin/reports/report": {
             "get": {
                 "tags": [
-                    "tags"
+                    "Admin Reports"
                 ],
-                "description": "Display the unique Tags",
-                "operationId": "EscolaLms\\Tags\\Http\\Controllers\\Swagger\\TagsApiSwagger::unique",
-                "responses": {
-                    "200": {
-                        "description": "successful operation",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "422": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {}
-                        }
-                    }
-                }
-            }
-        },
-        "/api/tags/create": {
-            "post": {
-                "tags": [
-                    "tags"
-                ],
-                "description": "Create multiple Tags",
-                "operationId": "EscolaLms\\Tags\\Http\\Controllers\\Swagger\\TagsApiSwagger::create",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "model_type": {
-                                        "type": "string",
-                                        "example": "Category"
-                                    },
-                                    "model_id": {
-                                        "type": "integer",
-                                        "example": "1"
-                                    },
-                                    "tags": {
-                                        "type": "array",
-                                        "items": {
-                                            "properties": {
-                                                "": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "title": {
-                                                                "type": "string",
-                                                                "example": "Nowości"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "successful operation",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "422": {
-                        "description": "Bad request",
-                        "content": {
-                            "application/json": {}
-                        }
-                    }
-                }
-            }
-        },
-        "/api/tags/{tag}": {
-            "get": {
-                "tags": [
-                    "tags"
-                ],
-                "description": "Display the specified Tag",
-                "operationId": "EscolaLms\\Tags\\Http\\Controllers\\Swagger\\TagsApiSwagger::show",
+                "summary": "Get list of available metrics",
+                "description": "",
+                "operationId": "fa6fc53a1eb222a4059599186448c833",
                 "parameters": [
                     {
-                        "name": "tag",
-                        "in": "path",
+                        "name": "metric",
+                        "in": "query",
+                        "description": "one of available metrics",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "date from which report should be loaded (if there exists historical data), limit will be ignored and only datapoints with which record was created will be loaded; don't send this param to always get fresh report; send today date if you want to get latest stored report",
+                        "required": false,
+                        "schema": {
+                            "type": "datetime"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "how many datapoints should be returned",
+                        "required": false,
                         "schema": {
                             "type": "integer"
                         }
@@ -176,18 +69,90 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "successful operation",
+                        "description": "successful operation, returns User data",
                         "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "content": {
-                            "application/json": {}
+                            "application/json": {
+                                "schema": {}
+                            }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/stats/available": {
+            "get": {
+                "tags": [
+                    "Admin Reports"
+                ],
+                "summary": "Get list of available stats for models",
+                "description": "",
+                "operationId": "e308b71a486a2b5f0a3095b3da624e62",
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/stats/course/{course_id}": {
+            "get": {
+                "tags": [
+                    "Admin Reports"
+                ],
+                "summary": "Calculate stats for Course",
+                "description": "",
+                "operationId": "1e44b77b5db605f25416e55457c6d01c",
+                "parameters": [
+                    {
+                        "name": "course_id",
+                        "in": "path",
+                        "description": "Course ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stats",
+                        "in": "query",
+                        "description": "array of stats to be calculated, leave empty to calculate all available stats",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
             }
         }
     }
