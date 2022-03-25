@@ -75,7 +75,7 @@ trait CoursesTestingTrait
 
         return Order::factory()->has(Payment::factory()->state([
             'amount' => $product->price,
-            'billable_id' => $user->getKey(),
+            'user_id' => $user->getKey(),
             'billable_type' => get_class($user),
         ]))->afterCreating(
             fn (Order $order) => $order->items()->save(new OrderItem([
