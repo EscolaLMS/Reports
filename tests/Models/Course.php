@@ -11,7 +11,7 @@ class Course extends BaseCourse implements Productable
 {
     use ProductableTrait;
 
-    public function attachToUser(User $user): void
+    public function attachToUser(User $user, int $quantity = 1): void
     {
         $this->users()->syncWithoutDetaching($user->getKey());
     }
