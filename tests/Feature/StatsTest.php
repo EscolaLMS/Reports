@@ -4,6 +4,7 @@ namespace EscolaLms\Reports\Tests\Feature;
 
 use EscolaLms\Cart\Events\CartOrderPaid;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
+use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
@@ -89,6 +90,28 @@ class StatsTest extends TestCase
         $result = MoneyEarned::make($course)->calculate();
 
         $this->assertEquals(2000, $result);
+    }
+
+
+    public function testCourseMoneyEarnedWithOrderItemThatIsNotRepresentingProductModel()
+    {
+        $course = $this->createCourseWithLessonAndTopic();
+
+        $student = $this->makeStudent();
+
+        $order = $this->makePaidOrder($student, $course);
+
+        /** This order item will be ignored in stats calculation as it does not represent product as defined by Cart package */
+        $order->items()->save(new OrderItem([
+            'price' => 999,
+            'quantity' => 1,
+            'buyable_id' => $course->getKey(),
+            'buyable_type' => get_class($course),
+        ]));
+
+        $result = MoneyEarned::make($course)->calculate();
+
+        $this->assertEquals(1000, $result);
     }
 
     public function testPeopleBought()

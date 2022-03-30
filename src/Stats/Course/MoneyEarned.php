@@ -10,11 +10,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
+// TODO: Abstract this as Productable Money Earned so that any productable can be checked, and not only Courses
 class MoneyEarned extends AbstractCourseStat
 {
     public function calculate(): int
     {
         return $this->calculateSingleProductValue() + $this->calculateBundleProductValue();
+    }
+
+    public static function requiredPackagesInstalled(): bool
+    {
+        return class_exists(Product::class) && parent::requiredPackagesInstalled();
     }
 
     private function calculateSingleProductValue(): int
@@ -26,8 +32,9 @@ class MoneyEarned extends AbstractCourseStat
             ->where('buyable_type', Product::class)
             ->whereHas(
                 'buyable',
-                fn (Builder $query) => $query
-                    ->where('type', ProductType::SINGLE)
+                fn (Builder $query) => $query->getModel()->getMorphClass() !== Product::class
+                    ? $query
+                    : $query->where('type', ProductType::SINGLE)
                     ->whereHas(
                         'productables',
                         fn (Builder $subquery) => $subquery->where('productable_type', $this->course->getMorphClass())->where('productable_id', $this->course->getKey())
@@ -45,8 +52,9 @@ class MoneyEarned extends AbstractCourseStat
             ->where('buyable_type', Product::class)
             ->whereHas(
                 'buyable',
-                fn (Builder $query) => $query
-                    ->where('type', ProductType::BUNDLE)
+                fn (Builder $query) => $query->getModel()->getMorphClass() !== Product::class
+                    ? $query
+                    : $query->where('type', ProductType::BUNDLE)
                     ->whereHas(
                         'productables',
                         fn (Builder $subquery) => $subquery->where('productable_type', $this->course->getMorphClass())->where('productable_id', $this->course->getKey())
@@ -54,7 +62,20 @@ class MoneyEarned extends AbstractCourseStat
                     ->withCount('productables')
             )->with('buyable', 'buyable.productables')->get();
 
+        // This calculates value as if every part of a product bundle represented equal share of product total price
+        // For example, if product contains 3 different courses and 2 hours of consultations (quantity = 2), single course is worth 1/5 of product total price
         // TODO: try to write this as (Raw) SQL Query
-        return $orderItems->reduce(fn (int $sum, OrderItem $orderItem) => $sum + ($orderItem->buyable->productables_count > 0 ? ($orderItem->price * $orderItem->quantity / $orderItem->buyable->productables_count) : 0), 0);
+        return $orderItems->reduce(function (int $sum, OrderItem $orderItem) {
+            $product = $orderItem->buyable;
+            assert($product instanceof Product);
+            $productablesCount = $product->productables->sum('quantity');
+            $courseCount = optional($orderItem->buyable->productables->where('productable_type', $this->course->getMorphClass())->where('productable_id', $this->course->getKey())->first())->quantity;
+            if ($courseCount > 0 && $productablesCount > 0) {
+                $price = ($orderItem->subtotal * $courseCount / $productablesCount);
+            } else {
+                $price = 0;
+            }
+            return $sum + $price;
+        }, 0);
     }
 }

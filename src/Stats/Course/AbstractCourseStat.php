@@ -18,4 +18,9 @@ abstract class AbstractCourseStat implements StatsContract
     {
         return new static($course);
     }
+
+    public static function requiredPackagesInstalled(): bool
+    {
+        return class_exists(Course::class);
+    }
 }
