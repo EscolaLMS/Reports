@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Tests\Traits;
 
+use EscolaLms\Cart\Enums\ProductType;
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Cart\Models\Product;
@@ -58,19 +59,35 @@ trait CoursesTestingTrait
         $progressRepository->updateInTopic($topic, $user, $status, $seconds);
     }
 
-    private function makePaidOrder(User $user, Course $course): Order
+    private function makePaidOrder(User $user, Course $course, ?Course $bundledCourse = null): Order
     {
-        $productable = app(ProductServiceContract::class)->findProductable($course->getMorphClass(), $course->getKey());
-        $product = app(ProductServiceContract::class)->findSingleProductForProductable($productable);
-        if (is_null($product)) {
+        if ($bundledCourse) {
             $product = Product::factory()->create([
-                'name' => 'Product for course' . $course->getKey(),
+                'name' => 'Product for courses ' . $course->getKey() . ' & ' . $bundledCourse->getKey(),
                 'price' => 1000,
+                'type' => ProductType::BUNDLE
             ]);
             $product->productables()->save(new ProductProductable([
                 'productable_type' => $course->getMorphClass(),
                 'productable_id' => $course->getKey()
             ]));
+            $product->productables()->save(new ProductProductable([
+                'productable_type' => $bundledCourse->getMorphClass(),
+                'productable_id' => $bundledCourse->getKey()
+            ]));
+        } else {
+            $productable = app(ProductServiceContract::class)->findProductable($course->getMorphClass(), $course->getKey());
+            $product = app(ProductServiceContract::class)->findSingleProductForProductable($productable);
+            if (is_null($product)) {
+                $product = Product::factory()->create([
+                    'name' => 'Product for course' . $course->getKey(),
+                    'price' => 1000,
+                ]);
+                $product->productables()->save(new ProductProductable([
+                    'productable_type' => $course->getMorphClass(),
+                    'productable_id' => $course->getKey()
+                ]));
+            }
         }
 
         return Order::factory()->has(Payment::factory()->state([

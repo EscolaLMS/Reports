@@ -6,13 +6,10 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
-use EscolaLms\Reports\Models\Report;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Support\Carbon;
 use Illuminate\Testing\TestResponse;
 
 class StatsTest extends TestCase

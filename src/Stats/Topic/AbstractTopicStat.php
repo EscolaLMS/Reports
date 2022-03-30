@@ -18,4 +18,9 @@ abstract class AbstractTopicStat implements StatsContract
     {
         return new static($topic);
     }
+
+    public static function requiredPackagesInstalled(): bool
+    {
+        return class_exists(Topic::class);
+    }
 }

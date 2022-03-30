@@ -24,11 +24,9 @@ class StatsService implements StatsServiceContract
 
         $results = [];
         foreach ($stats_to_calculate as $stat) {
-            if (class_exists($stat)) {
-                $stat_instance = new $stat($model);
-                assert($stat_instance instanceof StatsContract);
-                $results[$stat] = $stat_instance->calculate();
-            }
+            $stat_instance = new $stat($model);
+            assert($stat_instance instanceof StatsContract);
+            $results[$stat] = $stat_instance->calculate();
         }
         return $results;
     }
@@ -39,8 +37,8 @@ class StatsService implements StatsServiceContract
             return $this->available_stats;
         }
         foreach ($this->available_stats as $class => $stats) {
-            if (is_a($model, $class)) {
-                return $stats;
+            if (is_a($model, $class, true)) {
+                return array_filter($stats, fn (string $stat) => class_exists($stat) && is_a($stat, StatsContract::class, true) && $stat::requiredPackagesInstalled());
             }
         }
         return [];
