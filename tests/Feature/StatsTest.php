@@ -92,6 +92,23 @@ class StatsTest extends TestCase
         $this->assertEquals(2000, $result);
     }
 
+    public function testBundledCoursesMoneyEarned()
+    {
+        $course = $this->createCourseWithLessonAndTopic();
+        $course2 = $this->createCourseWithLessonAndTopic();
+
+        $student = $this->makeStudent();
+        $student2 = $this->makeStudent();
+
+        $this->makePaidOrder($student, $course);
+        $this->makePaidOrder($student2, $course, $course2);
+
+        $result = MoneyEarned::make($course)->calculate();
+        $this->assertEquals(1500, $result);
+
+        $result = MoneyEarned::make($course2)->calculate();
+        $this->assertEquals(500, $result);
+    }
 
     public function testCourseMoneyEarnedWithOrderItemThatIsNotRepresentingProductModel()
     {
