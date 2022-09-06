@@ -8,6 +8,7 @@ use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
 use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
 use EscolaLms\Payments\Providers\PaymentsServiceProvider;
+use EscolaLms\Questionnaire\EscolaLmsQuestionnaireServiceProvider;
 use EscolaLms\Reports\Database\Seeders\ReportsPermissionSeeder;
 use EscolaLms\Reports\EscolaLmsReportsServiceProvider;
 use EscolaLms\Reports\Tests\Models\Client;
@@ -41,6 +42,7 @@ class TestCase extends CoreTestCase
             PaymentsServiceProvider::class,
             EscolaLmsCartServiceProvider::class,
             EscolaLmsScormServiceProvider::class,
+            EscolaLmsQuestionnaireServiceProvider::class,
         ];
     }
 

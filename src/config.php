@@ -9,6 +9,8 @@ return [
         \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
         \EscolaLms\Reports\Metrics\CoursesSecondsSpentMetric::class,
         \EscolaLms\Reports\Metrics\TutorsPopularityMetric::class,
+        \EscolaLms\Reports\Metrics\CoursesBestRatedMetric::class,
+        \EscolaLms\Reports\Metrics\CoursesTopSellingMetric::class,
     ],
     /**
      * For each Metric class you can specify settings:
@@ -37,6 +39,16 @@ return [
             'history' => false,
             'cron' => '0 0 * * *',
         ],
+        \EscolaLms\Reports\Metrics\CoursesTopSellingMetric::class => [
+            'limit' => 10,
+            'history' => false,
+            'cron' => '0 0 * * *',
+        ],
+        \EscolaLms\Reports\Metrics\CoursesBestRatedMetric::class => [
+            'limit' => 10,
+            'history' => false,
+            'cron' => '0 0 * * *',
+        ]
     ],
     /**
      * By modyfing this associative array, you can add or remove available Stats which can be returned for single objects of given class
