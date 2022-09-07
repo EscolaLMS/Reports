@@ -2,13 +2,19 @@
 
 namespace EscolaLms\Reports\Tests\Feature;
 
+use Carbon\Carbon;
 use EscolaLms\Cart\Events\CartOrderPaid;
 use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
+use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
+use EscolaLms\Cart\Models\User as CartUser;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
+use EscolaLms\Reports\Stats\Cart\NewCustomers;
+use EscolaLms\Reports\Stats\Cart\ReturningCustomers;
+use EscolaLms\Reports\Stats\Cart\SpendPerCustomer;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
@@ -197,5 +203,55 @@ class StatsTest extends TestCase
 
         $result = PeopleStarted::make($course)->calculate();
         $this->assertEquals(0, $result);
+    }
+
+    public function testNewCustomers(): void
+    {
+        CartUser::factory()
+            ->count(10)
+            ->has(Order::factory())
+            ->create();
+
+        CartUser::factory()
+            ->count(15)
+            ->has(Order::factory())
+            ->create(['created_at' => Carbon::now()->subDay()]);
+
+        $result = NewCustomers::make()->calculate();
+
+        $this->assertEquals(10, $result);
+    }
+
+    public function testSpendPerCustomer(): void
+    {
+        $users = CartUser::factory()
+            ->count(20)
+            ->has(Order::factory()->state(['total' => rand(10, 1000)]))
+            ->create();
+
+        $orders = Order::whereIn('user_id', $users->pluck('id'));
+
+        $result = SpendPerCustomer::make()->calculate();
+
+        $this->assertEquals(round($orders->sum('total') / $users->count()), $result);
+    }
+
+    public function testReturningCustomers(): void
+    {
+        $users = CartUser::factory()
+            ->count(20)
+            ->has(Order::factory()->state(['created_at' => Carbon::now()->subYear()->subDay()]))
+            ->create();
+
+        $users
+            ->slice(0, 10)
+            ->each(fn($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::now()->subMonth()]));
+        $users
+            ->slice(10, 5)
+            ->each(fn($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::today()]));
+
+        $result = ReturningCustomers::make()->calculate();
+
+        $this->assertEquals(5, $result);
     }
 }

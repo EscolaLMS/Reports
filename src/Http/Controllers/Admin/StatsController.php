@@ -2,8 +2,10 @@
 
 namespace EscolaLms\Reports\Http\Controllers\Admin;
 
+use EscolaLms\Cart\Models\Cart;
 use EscolaLms\Core\Http\Controllers\EscolaLmsBaseController;
 use EscolaLms\Reports\Http\Controllers\Admin\Swagger\StatsSwagger;
+use EscolaLms\Reports\Http\Requests\Admin\CartStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\CourseStatsRequest;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use Illuminate\Http\JsonResponse;
@@ -26,5 +28,10 @@ class StatsController extends EscolaLmsBaseController implements StatsSwagger
     {
         $course = $request->getCourse();
         return $this->sendResponse($this->statsService->calculate($course, $request->getStats()), __('Stats for Course'));
+    }
+
+    public function cart(CartStatsRequest $request): JsonResponse
+    {
+        return $this->sendResponse($this->statsService->calculate(new Cart(), $request->getStats()), __('Stats for Course'));
     }
 }
