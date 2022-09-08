@@ -32,6 +32,6 @@ class StatsController extends EscolaLmsBaseController implements StatsSwagger
 
     public function cart(CartStatsRequest $request): JsonResponse
     {
-        return $this->sendResponse($this->statsService->calculate(new Cart(), $request->getStats()), __('Stats for Course'));
+        return $this->sendResponse($this->statsService->calculate(new Cart(), $request->getStats()), __('Stats for Cart'));
     }
 }
