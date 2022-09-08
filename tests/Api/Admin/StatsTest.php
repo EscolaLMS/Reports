@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Tests\Api\Admin;
 
+use EscolaLms\Cart\Models\Cart;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
@@ -76,5 +77,17 @@ class StatsTest extends TestCase
                 \EscolaLms\Reports\Stats\Course\AverageTime::class => 135
             ]
         ]);
+    }
+
+    public function testCart()
+    {
+        $admin = $this->makeAdmin();
+
+        $stats = config('reports.stats')[Cart::class] ?? [];
+
+        $this->actingAs($admin)
+            ->json('GET', '/api/admin/stats/cart')
+            ->assertOk()
+            ->assertJsonStructure(['data' => $stats]);
     }
 }

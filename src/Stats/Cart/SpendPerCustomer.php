@@ -14,6 +14,6 @@ class SpendPerCustomer extends AbstractCartStat
             ->selectRaw('SUM(' . $orderTable . '.total) / COUNT(' . $orderTable . '.user_id) as value')
             ->where('status', '=', '1')
             ->first()
-            ->value;
+            ->value ?? 0;
     }
 }
