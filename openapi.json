@@ -154,6 +154,43 @@
                     }
                 ]
             }
+        },
+        "/api/admin/stats/cart": {
+            "get": {
+                "tags": [
+                    "Admin Reports"
+                ],
+                "summary": "Calculate stats for Cart",
+                "description": "",
+                "operationId": "90927536cf6a67bd9d91987ba84aaf47",
+                "parameters": [
+                    {
+                        "name": "stats",
+                        "in": "query",
+                        "description": "array of stats to be calculated, leave empty to calculate all available stats",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
         }
     }
 }
