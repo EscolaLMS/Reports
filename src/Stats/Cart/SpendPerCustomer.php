@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Stats\Cart;
 
+use EscolaLms\Cart\Enums\OrderStatus;
 use EscolaLms\Cart\Models\Order;
 
 class SpendPerCustomer extends AbstractCartStat
@@ -12,7 +13,7 @@ class SpendPerCustomer extends AbstractCartStat
 
         return Order::query()
             ->selectRaw('SUM(' . $orderTable . '.total) / COUNT(' . $orderTable . '.user_id) as value')
-            ->where('status', '=', '1')
+            ->where('status', '=', OrderStatus::PAID)
             ->first()
             ->value ?? 0;
     }
