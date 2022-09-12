@@ -25,6 +25,8 @@ class ReportsTest extends TestCase
             \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             \EscolaLms\Reports\Metrics\CoursesSecondsSpentMetric::class,
             \EscolaLms\Reports\Metrics\TutorsPopularityMetric::class,
+            \EscolaLms\Reports\Metrics\CoursesBestRatedMetric::class,
+            \EscolaLms\Reports\Metrics\CoursesTopSellingMetric::class,
         ];
 
         config('reports.metrics', $metrics);
