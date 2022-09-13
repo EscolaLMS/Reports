@@ -9,28 +9,37 @@ use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
 use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
 use EscolaLms\Cart\Models\User as CartUser;
+use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
+use EscolaLms\Courses\Models\CourseUserPivot;
+use EscolaLms\Notifications\Models\DatabaseNotification;
 use EscolaLms\Reports\Stats\Cart\NewCustomers;
 use EscolaLms\Reports\Stats\Cart\ReturningCustomers;
 use EscolaLms\Reports\Stats\Cart\SpendPerCustomer;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
+use EscolaLms\Reports\Stats\Course\Finished;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
 use EscolaLms\Reports\Stats\Course\PeopleBought;
 use EscolaLms\Reports\Stats\Course\PeopleFinished;
 use EscolaLms\Reports\Stats\Course\PeopleStarted;
+use EscolaLms\Reports\Stats\Course\Started;
+use EscolaLms\Reports\Stats\User\ActiveUsers;
+use EscolaLms\Reports\Stats\User\NewUsers;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
+use EscolaLms\Reports\Tests\Traits\NotificationTestingTrait;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Ramsey\Uuid\Uuid;
 
 class StatsTest extends TestCase
 {
     use CreatesUsers, ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
-    use CoursesTestingTrait;
+    use CoursesTestingTrait, NotificationTestingTrait;
 
     public function testCourseAverageTime()
     {
@@ -253,5 +262,198 @@ class StatsTest extends TestCase
         $result = ReturningCustomers::make()->calculate();
 
         $this->assertEquals(5, $result);
+    }
+
+    public function testCourseStarted(): void
+    {
+        $start = Carbon::now()->subDays(3)->format('Y-m-d');
+        $end = Carbon::now()->addDays(10)->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
+
+        $course1 = $this->createCourseWithLessonAndTopic();
+        $course2 = $this->createCourseWithLessonAndTopic();
+        $course3 = $this->createCourseWithLessonAndTopic();
+        $student1 = $this->makeStudent();
+        $student2 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course1->getKey()]);
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course2->getKey()]);
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course3->getKey()]);
+        CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course1->getKey()]);
+        CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course2->getKey()]);
+
+        $result = Started::make()->calculate();
+        $this->assertEquals(5, $result[$today]);
+
+        $student3 = $this->makeStudent();
+        $student4 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course1->getKey(), 'created_at' => Carbon::now()->subDays(3)]);
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course2->getKey(), 'created_at' => Carbon::now()->subDays(3)]);
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course3->getKey(), 'created_at' => Carbon::now()->subDays(3)]);
+        CourseUserPivot::create(['user_id' => $student4->getKey(), 'course_id' => $course1->getKey(), 'created_at' => Carbon::now()->subDays(3)]);
+        CourseUserPivot::create(['user_id' => $student4->getKey(), 'course_id' => $course2->getKey(), 'created_at' => Carbon::now()->subDays(3)]);
+
+        $result = Started::make(Carbon::now()->subDays(4))->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(5, $result[$today]);
+        $this->assertEquals(5, $result[$start]);
+
+        $result = Started::make(Carbon::now()->subDays(4), Carbon::now()->subDays(2))->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(5, $result[$start]);
+
+        $student5 = $this->makeStudent();
+        $student6 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student5->getKey(), 'course_id' => $course1->getKey(), 'created_at' => Carbon::now()->addDays(10)]);
+        CourseUserPivot::create(['user_id' => $student5->getKey(), 'course_id' => $course2->getKey(), 'created_at' => Carbon::now()->addDays(10)]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course3->getKey(), 'created_at' => Carbon::now()->addDays(10)]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course1->getKey(), 'created_at' => Carbon::now()->addDays(10)]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course2->getKey(), 'created_at' => Carbon::now()->addDays(10)]);
+
+        $result = Started::make(Carbon::now()->addDays(9), Carbon::now()->addDays(10))->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayNotHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(5, $result[$end]);
+
+        $result = Started::make(Carbon::now()->subMonth(), Carbon::now()->addMonth())->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(5, $result[$today]);
+        $this->assertEquals(5, $result[$start]);
+        $this->assertEquals(5, $result[$end]);
+    }
+
+    public function testCoursesFinished(): void
+    {
+        $start = Carbon::now()->subDays(3)->format('Y-m-d');
+        $end = Carbon::now()->addDays(10)->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
+
+        $course1 = $this->createCourseWithLessonAndTopic();
+        $course2 = $this->createCourseWithLessonAndTopic();
+        $course3 = $this->createCourseWithLessonAndTopic();
+        $student1 = $this->makeStudent();
+        $student2 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::today(), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::today(), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course3->getKey(), 'updated_at' => Carbon::today(), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::today(), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::today(), 'finished' => false]);
+
+        $result = Finished::make()->calculate();
+        $this->assertEquals(3, $result[$today]);
+
+        $student3 = $this->makeStudent();
+        $student4 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::now()->subDays(3), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::now()->subDays(3), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student3->getKey(), 'course_id' => $course3->getKey(), 'updated_at' => Carbon::now()->subDays(3), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student4->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::now()->subDays(3), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student4->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::now()->subDays(3), 'finished' => true]);
+
+        $result = Finished::make(Carbon::now()->subDays(4))->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(3, $result[$today]);
+        $this->assertEquals(2, $result[$start]);
+
+        $result = Finished::make(Carbon::now()->subDays(4), Carbon::now()->subDays(2))->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(2, $result[$start]);
+
+        $student5 = $this->makeStudent();
+        $student6 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student5->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::now()->addDays(10), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student5->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::now()->addDays(10), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course3->getKey(), 'updated_at' => Carbon::now()->addDays(10), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course1->getKey(), 'updated_at' => Carbon::now()->addDays(10), 'finished' => false]);
+        CourseUserPivot::create(['user_id' => $student6->getKey(), 'course_id' => $course2->getKey(), 'updated_at' => Carbon::now()->addDays(10), 'finished' => false]);
+
+        $result = Finished::make(Carbon::now()->addDays(9), Carbon::now()->addDays(10))->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayNotHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(1, $result[$end]);
+
+        $result = Finished::make(Carbon::now()->subMonth(), Carbon::now()->addMonth())->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(3, $result[$today]);
+        $this->assertEquals(2, $result[$start]);
+        $this->assertEquals(1, $result[$end]);
+    }
+
+    public function testActiveUsers(): void
+    {
+        $start = Carbon::now()->subMonth()->format('Y-m-d');
+        $end = Carbon::now()->addMonth()->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->createNotification($user1);
+        $this->createNotification($user2);
+        $this->createNotification($user1, Carbon::now()->addMonth());
+        $this->createNotification($user1, Carbon::now()->subMonth());
+
+        $result = ActiveUsers::make()->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayNotHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(2, $result[$today]);
+
+        $result = ActiveUsers::make(Carbon::now()->subMonth(), Carbon::now()->subDay())->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(1, $result[$start]);
+    }
+
+    public function testNewUsers(): void
+    {
+        $start = Carbon::now()->subMonth()->format('Y-m-d');
+        $end = Carbon::now()->addDays(5)->format('Y-m-d');
+        $today = Carbon::today()->format('Y-m-d');
+
+        User::factory()->count(10)->create(['created_at' => Carbon::today()]);
+        User::factory()->count(5)->create(['created_at' => Carbon::now()->addDays(5)]);
+        User::factory()->count(20)->create(['created_at' => Carbon::now()->subMonth()]);
+
+        $result = NewUsers::make()->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayNotHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(10, $result[$today]);
+
+        $result = NewUsers::make(Carbon::now()->subMonth())->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayNotHasKey($end, $result);
+        $this->assertEquals(10, $result[$today]);
+        $this->assertEquals(20, $result[$start]);
+
+        $result = NewUsers::make(Carbon::now()->addDay(), Carbon::now()->addMonth())->calculate();
+        $this->assertArrayNotHasKey($today, $result);
+        $this->assertArrayNotHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(5, $result[$end]);
+
+        $result = NewUsers::make(Carbon::now()->subMonth(), Carbon::now()->addMonth())->calculate();
+        $this->assertArrayHasKey($today, $result);
+        $this->assertArrayHasKey($start, $result);
+        $this->assertArrayHasKey($end, $result);
+        $this->assertEquals(10, $result[$today]);
+        $this->assertEquals(20, $result[$start]);
+        $this->assertEquals(5, $result[$end]);
     }
 }
