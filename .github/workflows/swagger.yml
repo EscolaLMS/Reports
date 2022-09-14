@@ -23,7 +23,7 @@ jobs:
         run: php -r "file_put_contents('src/EscolaLmsReportsServiceProvider.php', str_replace('SWAGGER_VERSION', '@OA\Info(title=\"EscolaLMS\", version=\"0.0.1\")', file_get_contents('src/EscolaLmsReportsServiceProvider.php')));"
 
       - name: Update composer
-        run: composer update
+        run: COMPOSER_ROOT_VERSION=0.9.9 composer update
 
       - name: Require composer swagger package
         run: composer require darkaonline/l5-swagger:8.1.0 zircote/swagger-php:3.3.3 swagger-api/swagger-ui:v3.52.5
