@@ -15,7 +15,7 @@ class StatsService implements StatsServiceContract
         $this->available_stats = config('reports.stats');
     }
 
-    public function calculate(Model $model, array $selected_stats = []): array
+    public function calculate($model, array $selected_stats = []): array
     {
         $stats_to_calculate = $this->getAvailableStats($model);
         if (!empty($selected_stats)) {
@@ -31,7 +31,7 @@ class StatsService implements StatsServiceContract
         return $results;
     }
 
-    public function getAvailableStats(?Model $model = null): array
+    public function getAvailableStats($model = null): array
     {
         if (is_null($model)) {
             return $this->available_stats;

@@ -14,6 +14,7 @@ Route::group(['prefix' => 'api'], function () {
             Route::get('/available', [StatsController::class, 'available']);
             Route::get('/course/{course_id}', [StatsController::class, 'course']);
             Route::get('/cart', [StatsController::class, 'cart']);
+            Route::get('/date-range', [StatsController::class, 'dateRange']);
         });
     });
 });

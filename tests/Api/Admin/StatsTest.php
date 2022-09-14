@@ -9,6 +9,7 @@ use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
+use EscolaLms\Reports\ValueObject\DateRange;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Testing\TestResponse;
@@ -79,7 +80,7 @@ class StatsTest extends TestCase
         ]);
     }
 
-    public function testCart()
+    public function testCart(): void
     {
         $admin = $this->makeAdmin();
 
@@ -87,6 +88,18 @@ class StatsTest extends TestCase
 
         $this->actingAs($admin)
             ->json('GET', '/api/admin/stats/cart')
+            ->assertOk()
+            ->assertJsonStructure(['data' => $stats]);
+    }
+
+    public function testDateRange(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $stats = config('reports.stats')[DateRange::class] ?? [];
+
+        $this->actingAs($admin)
+            ->json('GET', '/api/admin/stats/date-range')
             ->assertOk()
             ->assertJsonStructure(['data' => $stats]);
     }

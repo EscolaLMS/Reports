@@ -70,5 +70,11 @@ return [
             \EscolaLms\Reports\Stats\Cart\SpendPerCustomer::class,
             \EscolaLms\Reports\Stats\Cart\ReturningCustomers::class,
         ],
+        \EscolaLms\Reports\ValueObject\DateRange::class => [
+            \EscolaLms\Reports\Stats\User\NewUsers::class,
+            \EscolaLms\Reports\Stats\User\ActiveUsers::class,
+            \EscolaLms\Reports\Stats\Course\Started::class,
+            \EscolaLms\Reports\Stats\Course\Finished::class,
+        ]
     ]
 ];
