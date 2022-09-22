@@ -10,7 +10,6 @@ use EscolaLms\Questionnaire\Models\Question;
 use EscolaLms\Questionnaire\Models\QuestionAnswer;
 use EscolaLms\Questionnaire\Models\Questionnaire;
 use EscolaLms\Questionnaire\Models\QuestionnaireModel;
-use EscolaLms\Questionnaire\Models\QuestionnaireModelType;
 use EscolaLms\Reports\Metrics\CoursesBestRatedMetric;
 use EscolaLms\Reports\Metrics\CoursesMoneySpentMetric;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
@@ -20,6 +19,7 @@ use EscolaLms\Reports\Metrics\TutorsPopularityMetric;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
+use EscolaLms\Reports\Tests\Traits\QuestionnaireTestingTrait;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
@@ -27,7 +27,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 class MetricsTest extends TestCase
 {
     use CreatesUsers, ApiTestTrait, WithoutMiddleware, DatabaseTransactions, WithFaker;
-    use CoursesTestingTrait;
+    use CoursesTestingTrait, QuestionnaireTestingTrait;
 
     public function testCoursesSecondsSpentMetric(): void
     {
@@ -233,10 +233,7 @@ class MetricsTest extends TestCase
         $course1 = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
         $course3 = $this->createCourseWithLessonAndTopic();
-        $questionnaireModelType = QuestionnaireModelType::factory()->create([
-            'title' => 'course',
-            'model_class' => Course::class
-        ]);
+        $questionnaireModelType = $this->getCourseQuestionnaireModelType();
         $questionnaire = Questionnaire::factory()->create();
         $questionnaireModel1 = QuestionnaireModel::factory()->create([
             'model_type_id' => $questionnaireModelType->getKey(),
