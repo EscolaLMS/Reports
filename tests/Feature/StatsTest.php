@@ -14,7 +14,6 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\CourseUserPivot;
-use EscolaLms\Notifications\Models\DatabaseNotification;
 use EscolaLms\Reports\Stats\Cart\NewCustomers;
 use EscolaLms\Reports\Stats\Cart\ReturningCustomers;
 use EscolaLms\Reports\Stats\Cart\SpendPerCustomer;
@@ -34,12 +33,16 @@ use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use EscolaLms\Reports\Tests\Traits\NotificationTestingTrait;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Ramsey\Uuid\Uuid;
 
 class StatsTest extends TestCase
 {
     use CreatesUsers, ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
     use CoursesTestingTrait, NotificationTestingTrait;
+
+    protected function setUp(): void
+    {
+        User::query()->delete();
+    }
 
     public function testCourseAverageTime()
     {
