@@ -13,13 +13,17 @@ use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
+use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Courses\Models\CourseUserPivot;
+use EscolaLms\Courses\Models\Lesson;
+use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Reports\Stats\Cart\NewCustomers;
 use EscolaLms\Reports\Stats\Cart\ReturningCustomers;
 use EscolaLms\Reports\Stats\Cart\SpendPerCustomer;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
 use EscolaLms\Reports\Stats\Course\Finished;
+use EscolaLms\Reports\Stats\Course\FinishedTopics;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
 use EscolaLms\Reports\Stats\Course\PeopleBought;
 use EscolaLms\Reports\Stats\Course\PeopleFinished;
@@ -27,6 +31,7 @@ use EscolaLms\Reports\Stats\Course\PeopleStarted;
 use EscolaLms\Reports\Stats\Course\Started;
 use EscolaLms\Reports\Stats\User\ActiveUsers;
 use EscolaLms\Reports\Stats\User\NewUsers;
+use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
@@ -459,5 +464,47 @@ class StatsTest extends TestCase
         $this->assertEquals(10, $result[$today]);
         $this->assertEquals(20, $result[$start]);
         $this->assertEquals(5, $result[$end]);
+    }
+
+    public function testFinishedTopics(): void
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $user3 = User::factory()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->state(['course_id' => $course->getKey()])->create();
+        $topic1 = Topic::factory()->state(['lesson_id' => $lesson->getKey()])->create();
+        $topic2 = Topic::factory()->state(['lesson_id' => $lesson->getKey()])->create();
+
+        $course->users()->attach($user1);
+        $course->users()->attach($user2);
+        $course->users()->attach($user3);
+
+        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user1->getKey(), 'finished_at' => Carbon::now()]);
+        CourseProgress::create(['topic_id' => $topic2->getKey(), 'user_id' => $user1->getKey(), 'finished_at' => Carbon::now()]);
+        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user2->getKey(), 'finished_at' => Carbon::now()]);
+
+        $result = FinishedTopics::make($course)->calculate();
+
+        // user1
+        $this->assertCount(3, $result);
+        $this->assertEquals($user1->id, $result[0]['id']);
+        $this->assertEquals($user1->email, $result[0]['email']);
+        $this->assertCount(2, $result[0]['topics']);
+        $this->assertCount(2, $result[0]['topics']->filter(fn($topic) => $topic['finished_at']));
+
+        // user2
+        $this->assertEquals($user2->email, $result[1]['email']);
+        $this->assertEquals($user2->id, $result[1]['id']);
+        $this->assertEquals($user2->email, $result[1]['email']);
+        $this->assertCount(2, $result[1]['topics']);
+        $this->assertCount(1, $result[1]['topics']->filter(fn($topic) => $topic['finished_at']));
+
+        // user3
+        $this->assertEquals($user3->email, $result[2]['email']);
+        $this->assertEquals($user3->id, $result[2]['id']);
+        $this->assertEquals($user3->email, $result[2]['email']);
+        $this->assertCount(2, $result[2]['topics']);
+        $this->assertCount(0, $result[2]['topics']->filter(fn($topic) => $topic['finished_at']));
     }
 }

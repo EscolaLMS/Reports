@@ -61,6 +61,7 @@ return [
             \EscolaLms\Reports\Stats\Course\PeopleBought::class,
             \EscolaLms\Reports\Stats\Course\PeopleFinished::class,
             \EscolaLms\Reports\Stats\Course\PeopleStarted::class,
+            \EscolaLms\Reports\Stats\Course\FinishedTopics::class,
         ],
         \EscolaLms\Courses\Models\Topic::class => [
             \EscolaLms\Reports\Stats\Topic\AverageTime::class,
