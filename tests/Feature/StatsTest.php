@@ -480,9 +480,9 @@ class StatsTest extends TestCase
         $course->users()->attach($user2);
         $course->users()->attach($user3);
 
-        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user1->getKey(), 'finished_at' => Carbon::now()]);
-        CourseProgress::create(['topic_id' => $topic2->getKey(), 'user_id' => $user1->getKey(), 'finished_at' => Carbon::now()]);
-        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user2->getKey(), 'finished_at' => Carbon::now()]);
+        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user1->getKey(), 'seconds' => 100, 'finished_at' => Carbon::now()]);
+        CourseProgress::create(['topic_id' => $topic2->getKey(), 'user_id' => $user1->getKey(), 'seconds' => 50, 'finished_at' => Carbon::now()]);
+        CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user2->getKey(), 'seconds' => 150, 'finished_at' => Carbon::now()]);
 
         $result = FinishedTopics::make($course)->calculate();
 
@@ -492,6 +492,9 @@ class StatsTest extends TestCase
         $this->assertEquals($user1->email, $result[0]['email']);
         $this->assertCount(2, $result[0]['topics']);
         $this->assertCount(2, $result[0]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertArrayHasKey('finished_at', $result[0]['topics'][0]);
+        $this->assertArrayHasKey('seconds', $result[0]['topics'][0]);
+        $this->assertArrayHasKey('started_at', $result[0]['topics'][0]);
 
         // user2
         $this->assertEquals($user2->email, $result[1]['email']);
@@ -499,6 +502,9 @@ class StatsTest extends TestCase
         $this->assertEquals($user2->email, $result[1]['email']);
         $this->assertCount(2, $result[1]['topics']);
         $this->assertCount(1, $result[1]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertArrayHasKey('finished_at', $result[1]['topics'][0]);
+        $this->assertArrayHasKey('seconds', $result[1]['topics'][0]);
+        $this->assertArrayHasKey('started_at', $result[1]['topics'][0]);
 
         // user3
         $this->assertEquals($user3->email, $result[2]['email']);
@@ -506,5 +512,8 @@ class StatsTest extends TestCase
         $this->assertEquals($user3->email, $result[2]['email']);
         $this->assertCount(2, $result[2]['topics']);
         $this->assertCount(0, $result[2]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertArrayHasKey('finished_at', $result[2]['topics'][0]);
+        $this->assertArrayHasKey('seconds', $result[2]['topics'][0]);
+        $this->assertArrayHasKey('started_at', $result[2]['topics'][0]);
     }
 }
