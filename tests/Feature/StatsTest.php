@@ -14,15 +14,18 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\CourseProgress;
+use EscolaLms\Courses\Models\CourseUserAttendance;
 use EscolaLms\Courses\Models\CourseUserPivot;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Reports\Stats\Cart\NewCustomers;
 use EscolaLms\Reports\Stats\Cart\ReturningCustomers;
 use EscolaLms\Reports\Stats\Cart\SpendPerCustomer;
+use EscolaLms\Reports\Stats\Course\AttendanceList;
 use EscolaLms\Reports\Stats\Course\AverageTime;
 use EscolaLms\Reports\Stats\Course\AverageTimePerTopic;
 use EscolaLms\Reports\Stats\Course\Finished;
+use EscolaLms\Reports\Stats\Course\FinishedCourse;
 use EscolaLms\Reports\Stats\Course\FinishedTopics;
 use EscolaLms\Reports\Stats\Course\MoneyEarned;
 use EscolaLms\Reports\Stats\Course\PeopleBought;
@@ -515,5 +518,60 @@ class StatsTest extends TestCase
         $this->assertArrayHasKey('finished_at', $result[2]['topics'][0]);
         $this->assertArrayHasKey('seconds', $result[2]['topics'][0]);
         $this->assertArrayHasKey('started_at', $result[2]['topics'][0]);
+    }
+
+    public function testFinishedCourse(): void
+    {
+        $today = Carbon::today()->format('Y-m-d H:i:s');
+
+        $course = $this->createCourseWithLessonAndTopic();
+        $student1 = $this->makeStudent();
+        $student2 = $this->makeStudent();
+        CourseUserPivot::create(['user_id' => $student1->getKey(), 'course_id' => $course->getKey(), 'updated_at' => Carbon::today(), 'finished' => true]);
+        CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course->getKey(), 'updated_at' => Carbon::today(), 'finished' => false]);
+
+        $result = FinishedCourse::make($course)->calculate();
+        $this->assertEquals(true, $result[0]['finished']);
+        $this->assertEquals($today, $result[0]['finished_at']);
+        $this->assertEquals(false, $result[1]['finished']);
+        $this->assertEquals(null, $result[1]['finished_at']);
+    }
+
+    public function testAttendanceList()
+    {
+        $now = now();
+        $course = $this->createCourseWithLessonAndTopic();
+        /** @var TestUser $student */
+        $student = $this->makeStudent();
+        $student->courses()->save($course);
+        $student2 = $this->makeStudent();
+        $student2->courses()->save($course);
+
+        $result = AttendanceList::make($course)->calculate();
+        $this->assertEquals([], $result);
+
+        $topic = $course->topics->first();
+
+        $this->progressUserInTopic($student, $topic, 60, ProgressStatus::COMPLETE);
+        $this->progressUserInTopic($student2, $topic, 60, ProgressStatus::COMPLETE);
+        $this->progressUserInTopic($student2, $topic, 60, ProgressStatus::INCOMPLETE);
+
+        $result = AttendanceList::make($course)->calculate();
+        // student1
+        $this->assertCount(2, $result);
+        $this->assertEquals($student->email, $result[0]['email']);
+        $this->assertCount(1, $result[0]['attempts']);
+        $this->assertEquals(0, $result[0]['attempts'][0]['attempt']);
+        $this->assertEquals($now->format('Y-m-d'), $result[0]['attempts'][0]['dates']->first()['date']);
+        $this->assertCount(1, $result[0]['attempts'][0]['dates']->first()['times']);
+        // student2
+        $this->assertEquals($student2->email, $result[1]['email']);
+        $this->assertCount(2, $result[1]['attempts']);
+        $this->assertEquals(0, $result[1]['attempts'][0]['attempt']);
+        $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][0]['dates']->first()['date']);
+        $this->assertCount(1, $result[1]['attempts'][0]['dates']->first()['times']);
+        $this->assertEquals(1, $result[1]['attempts'][1]['attempt']);
+        $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][1]['dates']->first()['date']);
+        $this->assertCount(1, $result[1]['attempts'][1]['dates']->first()['times']);
     }
 }

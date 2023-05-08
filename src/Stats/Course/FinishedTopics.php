@@ -29,7 +29,7 @@ class FinishedTopics extends AbstractCourseStat
                 $userTable . '.email as user_email',
                 $courseProgressTable . '.finished_at',
                 $courseProgressTable . '.seconds',
-                $courseProgressTable . '.started_at'
+                $courseProgressTable . '.started_at',
             )
             ->join($lessonTable, $topicTable . '.lesson_id', '=', $lessonTable . '.id')
             ->join($courseTable, $lessonTable . '.course_id', '=', $courseTable . '.id')
@@ -50,10 +50,11 @@ class FinishedTopics extends AbstractCourseStat
                 'topics' => collect($topics)->map(fn($topic) => [
                     'id' => $topic->topic_id,
                     'title' => $topic->topic_title,
-                    'started_at' => $topic->finished_at,
+                    'started_at' => $topic->started_at,
                     'seconds' => $topic->seconds,
                     'finished_at' => $topic->finished_at,
-                ])
+                ]),
+                'seconds_total' => collect($topics)->sum('seconds'),
             ])
             ->values()
             ->toArray();
