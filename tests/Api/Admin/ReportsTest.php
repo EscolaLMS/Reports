@@ -277,4 +277,25 @@ class ReportsTest extends TestCase
 
         $response->assertNotFound();
     }
+
+    public function testAvailableForUserUnauthorized(): void
+    {
+        $this
+            ->json('GET', '/api/admin/reports/available-for-user')
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function testAvailableForAdmin(): void
+    {
+        $admin = $this->makeAdmin();
+        $stats = config('reports.metrics');
+        $this
+            ->actingAs($admin)
+            ->json('GET', '/api/admin/reports/available-for-user')
+            ->assertOk()
+            ->assertJsonFragment([
+                'data' => $stats
+            ]);
+    }
 }

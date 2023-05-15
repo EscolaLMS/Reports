@@ -37,7 +37,7 @@ class CoursesBestRatedMetric extends AbstractCoursesMetric
         return 'escolalms/courses & escolalms/questionnaire';
     }
 
-    public function requiredPackageInstalled(): bool
+    public static function requiredPackageInstalled(): bool
     {
         return class_exists(Course::class) &&
             class_exists(Questionnaire::class) &&

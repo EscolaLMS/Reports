@@ -4,7 +4,9 @@ namespace EscolaLms\Reports;
 
 use EscolaLms\Reports\Providers\AuthServiceProvider;
 use EscolaLms\Reports\Providers\ScheduleServiceProvider;
+use EscolaLms\Reports\Services\Contracts\ReportServiceContract;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
+use EscolaLms\Reports\Services\ReportService;
 use EscolaLms\Reports\Services\StatsService;
 use Illuminate\Support\ServiceProvider;
 
@@ -14,7 +16,8 @@ use Illuminate\Support\ServiceProvider;
 class EscolaLmsReportsServiceProvider extends ServiceProvider
 {
     public $singletons = [
-        StatsServiceContract::class => StatsService::class
+        StatsServiceContract::class => StatsService::class,
+        ReportServiceContract::class => ReportService::class,
     ];
 
     public function register()

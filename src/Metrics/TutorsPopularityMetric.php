@@ -66,7 +66,7 @@ class TutorsPopularityMetric extends AbstractMetric
         return 'escolalms/courses';
     }
 
-    public function requiredPackageInstalled(): bool
+    public static function requiredPackageInstalled(): bool
     {
         return class_exists(Course::class);
     }
