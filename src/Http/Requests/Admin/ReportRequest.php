@@ -10,7 +10,8 @@ class ReportRequest extends AbstractAdminOnlyRequest
 {
     public function authorize()
     {
-        return $this->user()->can('viewAny', Report::class);
+        return $this->user()->can('viewAny', Report::class)
+            && $this->getMetric()::requiredPermissionsCheck();
     }
 
     public function rules()
@@ -24,7 +25,7 @@ class ReportRequest extends AbstractAdminOnlyRequest
 
     public function getMetric(): string
     {
-        return $this->validated()['metric'];
+        return $this->input('metric');
     }
 
     public function getDate(): ?Carbon
