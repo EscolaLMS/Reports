@@ -9,6 +9,7 @@ Route::group(['prefix' => 'api'], function () {
         Route::group(['prefix' => 'reports'], function () {
             Route::get('/metrics', [ReportsController::class, 'metrics']);
             Route::get('/report', [ReportsController::class, 'report']);
+            Route::get('/available-for-user', [ReportsController::class, 'availableForUser']);
         });
         Route::group(['prefix' => 'stats'], function () {
             Route::get('/available', [StatsController::class, 'available']);

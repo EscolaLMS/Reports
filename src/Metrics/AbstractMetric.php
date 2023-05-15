@@ -3,9 +3,11 @@
 namespace EscolaLms\Reports\Metrics;
 
 use Cron\CronExpression;
+use EscolaLms\Reports\Enums\ReportsPermissionsEnum;
 use EscolaLms\Reports\Metrics\Contracts\MetricContract;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Auth;
 
 abstract class AbstractMetric implements MetricContract
 {
@@ -49,5 +51,19 @@ abstract class AbstractMetric implements MetricContract
     public function defaultLimit(): int
     {
         return $this->limit;
+    }
+
+    public static function requiredPermissions(): array
+    {
+        return [];
+    }
+
+    public static function requiredPermissionsCheck(): bool
+    {
+        $user = Auth::user();
+        if ($user) {
+            return $user->can(array_merge([ReportsPermissionsEnum::DISPLAY_REPORTS], self::requiredPermissions()));
+        }
+        return false;
     }
 }

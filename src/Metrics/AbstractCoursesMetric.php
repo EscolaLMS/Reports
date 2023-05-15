@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Metrics;
 
+use EscolaLms\Courses\Enum\CoursesPermissionsEnum;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Models\Report;
 
@@ -34,8 +35,13 @@ abstract class AbstractCoursesMetric extends AbstractMetric
         return 'escolalms/courses';
     }
 
-    public function requiredPackageInstalled(): bool
+    public static function requiredPackageInstalled(): bool
     {
         return class_exists(Course::class);
+    }
+
+    public static function requiredPermissions(): array
+    {
+        return [CoursesPermissionsEnum::COURSE_LIST];
     }
 }

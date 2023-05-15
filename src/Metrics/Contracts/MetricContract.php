@@ -19,6 +19,8 @@ interface MetricContract
     public function calculate(?int $limit = null): Collection;
     public function calculateAndStore(?int $limit = null): Report;
 
-    public function requiredPackageInstalled(): bool;
+    public static function requiredPackageInstalled(): bool;
     public function requiredPackage(): string;
+    public static function requiredPermissions(): array;
+    public static function requiredPermissionsCheck(): bool;
 }

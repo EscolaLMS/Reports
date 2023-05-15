@@ -88,4 +88,31 @@ interface ReportsSwagger
      * )
      */
     public function report(ReportRequest $request, FindReport $action): JsonResponse;
+
+    /**
+     * @OA\Get(
+     *     path="/api/admin/reports/available-for-user",
+     *     summary="Get list of available metrics for logged user",
+     *     description="",
+     *     tags={"Admin Reports"},
+     *      security={
+     *          {"passport": {}},
+     *      },
+     *     @OA\Response(
+     *          response=200,
+     *          description="successful operation, returns User data",
+     *          @OA\JsonContent(
+     *              @OA\Schema(
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Schema(
+     *                          type="string"
+     *                      )
+     *                  )
+     *              )
+     *          )
+     *     ),
+     * )
+     */
+    public function availableForUser(): JsonResponse;
 }

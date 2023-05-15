@@ -4,6 +4,7 @@ namespace EscolaLms\Reports\Metrics;
 
 use ArrayObject;
 use EscolaLms\Core\Models\User;
+use EscolaLms\Courses\Enum\CoursesPermissionsEnum;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\CourseAuthorPivot;
 use EscolaLms\Reports\Models\Report;
@@ -66,8 +67,13 @@ class TutorsPopularityMetric extends AbstractMetric
         return 'escolalms/courses';
     }
 
-    public function requiredPackageInstalled(): bool
+    public static function requiredPackageInstalled(): bool
     {
         return class_exists(Course::class);
+    }
+
+    public static function requiredPermissions(): array
+    {
+        return [CoursesPermissionsEnum::COURSE_LIST];
     }
 }
