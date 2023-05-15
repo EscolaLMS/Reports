@@ -84,6 +84,31 @@
                 ]
             }
         },
+        "/api/admin/reports/available-for-user": {
+            "get": {
+                "tags": [
+                    "Admin Reports"
+                ],
+                "summary": "Get list of available metrics for logged user",
+                "description": "",
+                "operationId": "eba74ffea4cadf3b872e9b2da5869409",
+                "responses": {
+                    "200": {
+                        "description": "successful operation, returns User data",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
         "/api/admin/stats/available": {
             "get": {
                 "tags": [
