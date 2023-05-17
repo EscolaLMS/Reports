@@ -19,10 +19,19 @@ class ReportsTest extends TestCase
 {
     use CreatesUsers, ApiTestTrait, WithoutMiddleware, DatabaseTransactions;
 
+    private $admin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST, 'api');
+        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST_OWNED, 'api');
+        $this->admin = $this->makeAdmin();
+        $this->admin->givePermissionTo([CoursesPermissionsEnum::COURSE_LIST, CoursesPermissionsEnum::COURSE_LIST_OWNED]);
+    }
+
     public function testMetrics()
     {
-        $admin = $this->makeAdmin();
-
         $metrics = [
             \EscolaLms\Reports\Metrics\CoursesMoneySpentMetric::class,
             \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
@@ -37,15 +46,13 @@ class ReportsTest extends TestCase
 
         config('reports.metrics', $metrics);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/metrics');
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/metrics');
 
         $response->assertJsonFragment(['data' => $metrics]);
     }
 
     public function testReportCurrent()
     {
-        $admin = $this->makeAdmin();
-
         $course = Course::factory()->create();
         $course2 = Course::factory()->create();
 
@@ -57,7 +64,7 @@ class ReportsTest extends TestCase
         $student2 = $this->makeStudent();
         $student2->courses()->saveMany([$course, $course2]);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
         ]);
 
@@ -75,9 +82,7 @@ class ReportsTest extends TestCase
 
     public function testReportNotFound()
     {
-        $admin = $this->makeAdmin();
-
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::yesterday()
         ]);
@@ -87,8 +92,6 @@ class ReportsTest extends TestCase
 
     public function testReportToday()
     {
-        $admin = $this->makeAdmin();
-
         $course = Course::factory()->create();
         $course2 = Course::factory()->create();
 
@@ -100,7 +103,7 @@ class ReportsTest extends TestCase
         $student2 = $this->makeStudent();
         $student2->courses()->saveMany([$course, $course2]);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::today(),
         ]);
@@ -119,8 +122,6 @@ class ReportsTest extends TestCase
 
     public function testReportTodayMultipleTimes()
     {
-        $admin = $this->makeAdmin();
-
         $course = Course::factory()->create();
         $course2 = Course::factory()->create();
 
@@ -132,7 +133,7 @@ class ReportsTest extends TestCase
         $student2 = $this->makeStudent();
         $student2->courses()->saveMany([$course, $course2]);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::today(),
         ]);
@@ -153,7 +154,7 @@ class ReportsTest extends TestCase
         $student->courses()->save($course2);
 
         // Will return same report that first call
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::today(),
         ]);
@@ -171,7 +172,7 @@ class ReportsTest extends TestCase
         $this->assertEquals(1, Report::count());
 
         // Will calculate fresh report that has different value for course 2
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
         ]);
 
@@ -189,7 +190,7 @@ class ReportsTest extends TestCase
         $this->assertEquals(2, Report::count());
 
         // Will again calculate fresh report because we are trying to fetch more data points that were available in last saved report
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'limit' => 11,
             'date' => Carbon::today(),
@@ -211,8 +212,6 @@ class ReportsTest extends TestCase
 
     public function testReportLimit()
     {
-        $admin = $this->makeAdmin();
-
         $course = Course::factory()->create();
         $course2 = Course::factory()->create();
 
@@ -224,7 +223,7 @@ class ReportsTest extends TestCase
         $student2 = $this->makeStudent();
         $student2->courses()->saveMany([$course, $course2]);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'limit' => 1,
         ]);
@@ -243,8 +242,6 @@ class ReportsTest extends TestCase
 
     public function testReportHistorical()
     {
-        $admin = $this->makeAdmin();
-
         $course = Course::factory()->create();
         $course2 = Course::factory()->create();
 
@@ -260,7 +257,7 @@ class ReportsTest extends TestCase
         $report->created_at = Carbon::yesterday();
         $report->save();
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::yesterday()
         ]);
@@ -276,7 +273,7 @@ class ReportsTest extends TestCase
             'value' => 1
         ]);
 
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/reports/report', [
+        $response = $this->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
             'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
             'date' => Carbon::yesterday()->subDay()
         ]);
@@ -294,13 +291,9 @@ class ReportsTest extends TestCase
 
     public function testAvailableForAdmin(): void
     {
-        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST, 'api');
-        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST_OWNED, 'api');
-        $admin = $this->makeAdmin();
-        $admin->givePermissionTo([CoursesPermissionsEnum::COURSE_LIST, CoursesPermissionsEnum::COURSE_LIST_OWNED]);
         $stats = config('reports.metrics');
         $this
-            ->actingAs($admin)
+            ->actingAs($this->admin)
             ->json('GET', '/api/admin/reports/available-for-user')
             ->assertOk()
             ->assertJsonFragment([
