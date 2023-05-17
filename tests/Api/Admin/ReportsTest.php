@@ -4,13 +4,16 @@ namespace EscolaLms\Reports\Tests\Api\Admin;
 
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
+use EscolaLms\Courses\Enum\CoursesPermissionsEnum;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Reports\Enums\ReportsPermissionsEnum;
 use EscolaLms\Reports\Metrics\CoursesPopularityMetric;
 use EscolaLms\Reports\Models\Report;
 use EscolaLms\Reports\Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Carbon;
+use Spatie\Permission\Models\Permission;
 
 class ReportsTest extends TestCase
 {
@@ -291,7 +294,10 @@ class ReportsTest extends TestCase
 
     public function testAvailableForAdmin(): void
     {
+        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST, 'api');
+        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST_OWNED, 'api');
         $admin = $this->makeAdmin();
+        $admin->givePermissionTo([CoursesPermissionsEnum::COURSE_LIST, CoursesPermissionsEnum::COURSE_LIST_OWNED]);
         $stats = config('reports.metrics');
         $this
             ->actingAs($admin)
@@ -299,6 +305,44 @@ class ReportsTest extends TestCase
             ->assertOk()
             ->assertJsonFragment([
                 'data' => $stats
+            ]);
+    }
+
+    public function testReportCourseAuthoredPopularity()
+    {
+        Permission::findOrCreate(CoursesPermissionsEnum::COURSE_LIST_OWNED, 'api');
+        $course = Course::factory()->create();
+        $course2 = Course::factory()->create();
+
+        $tutor1 = $this->makeInstructor();
+        $tutor2 = $this->makeInstructor();
+        $tutor1->givePermissionTo([ReportsPermissionsEnum::DISPLAY_REPORTS, CoursesPermissionsEnum::COURSE_LIST_OWNED]);
+
+        $tutor1->authoredCourses()->save($course);
+        $tutor2->authoredCourses()->save($course2);
+
+        /** @var TestUser $student */
+        $student = $this->makeStudent();
+        $student->courses()->save($course);
+
+        /** @var TestUser $student2 */
+        $student2 = $this->makeStudent();
+        $student2->courses()->saveMany([$course, $course2]);
+
+        $this
+            ->actingAs($tutor1)
+            ->json('GET', '/api/admin/reports/report', [
+                'metric' => \EscolaLms\Reports\Metrics\CoursesAuthoredPopularityMetric::class,
+            ])
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'label' => $course->title,
+                'value' => 2,
+            ])
+            ->assertJsonMissing([
+                'label' => $course2->title,
+                'value' => 1,
             ]);
     }
 }
