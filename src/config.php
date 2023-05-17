@@ -11,6 +11,9 @@ return [
         \EscolaLms\Reports\Metrics\TutorsPopularityMetric::class,
         \EscolaLms\Reports\Metrics\CoursesBestRatedMetric::class,
         \EscolaLms\Reports\Metrics\CoursesTopSellingMetric::class,
+        \EscolaLms\Reports\Metrics\CoursesAuthoredPopularityMetric::class,
+        \EscolaLms\Reports\Metrics\CoursesAuthoredMoneySpentMetric::class,
+        \EscolaLms\Reports\Metrics\CoursesAuthoredSecondsSpentMetric::class,
     ],
     /**
      * For each Metric class you can specify settings:
