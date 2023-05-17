@@ -62,7 +62,7 @@ abstract class AbstractMetric implements MetricContract
     {
         $user = Auth::user();
         if ($user) {
-            return $user->can(array_merge([ReportsPermissionsEnum::DISPLAY_REPORTS], self::requiredPermissions()));
+            return $user->can(array_merge([ReportsPermissionsEnum::DISPLAY_REPORTS], static::requiredPermissions()));
         }
         return false;
     }
