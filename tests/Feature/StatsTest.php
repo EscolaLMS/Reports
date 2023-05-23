@@ -552,9 +552,57 @@ class StatsTest extends TestCase
 
         $topic = $course->topics->first();
 
-        $this->progressUserInTopic($student, $topic, 60, ProgressStatus::COMPLETE);
-        $this->progressUserInTopic($student2, $topic, 60, ProgressStatus::COMPLETE);
-        $this->progressUserInTopic($student2, $topic, 60, ProgressStatus::INCOMPLETE);
+        $userProgres = CourseProgress::factory()->create([
+            'user_id' => $student->getKey(),
+            'topic_id' => $topic->getKey(),
+            'seconds' => 360,
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDay(),
+            'status' => ProgressStatus::COMPLETE,
+        ]);
+        $userProgres->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->subDay(),
+            'seconds' => 0,
+        ])->make());
+        $userProgres->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->subDay()->addSeconds(10),
+            'seconds' => 230,
+        ])->make());
+        $userProgres->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->subSeconds(10),
+            'seconds' => 230,
+        ])->make());
+        $userProgres->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now(),
+            'seconds' => 360,
+        ])->make());
+
+        $userProgres2 = CourseProgress::factory()->create([
+            'user_id' => $student2->getKey(),
+            'topic_id' => $topic->getKey(),
+            'seconds' => 240,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'status' => ProgressStatus::COMPLETE,
+        ]);
+        $userProgres2->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now(),
+            'seconds' => 0,
+        ])->make());
+        $userProgres2->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->addSeconds(10),
+            'seconds' => 100,
+        ])->make());
+        $userProgres2->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->addSeconds(10),
+            'seconds' => 100,
+            'attempt' => 1,
+        ])->make());
+        $userProgres2->courseUserAttendances()->save(CourseUserAttendance::factory([
+            'attendance_date' => now()->addSeconds(20),
+            'seconds' => 240,
+            'attempt' => 1,
+        ])->make());
 
         $result = AttendanceList::make($course)->calculate();
         // student1
@@ -562,16 +610,18 @@ class StatsTest extends TestCase
         $this->assertEquals($student->email, $result[0]['email']);
         $this->assertCount(1, $result[0]['attempts']);
         $this->assertEquals(0, $result[0]['attempts'][0]['attempt']);
-        $this->assertEquals($now->format('Y-m-d'), $result[0]['attempts'][0]['dates']->first()['date']);
-        $this->assertCount(1, $result[0]['attempts'][0]['dates']->first()['times']);
+        $this->assertEquals(now()->subDay()->format('Y-m-d'), $result[0]['attempts'][0]['dates']->first()['date']);
+        $this->assertEquals($now->format('Y-m-d'), $result[0]['attempts'][0]['dates']->last()['date']);
+        $this->assertEquals(230, $result[0]['attempts'][0]['dates']->first()['seconds_total']);
+        $this->assertEquals(130, $result[0]['attempts'][0]['dates']->last()['seconds_total']);
         // student2
         $this->assertEquals($student2->email, $result[1]['email']);
         $this->assertCount(2, $result[1]['attempts']);
         $this->assertEquals(0, $result[1]['attempts'][0]['attempt']);
         $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][0]['dates']->first()['date']);
-        $this->assertCount(1, $result[1]['attempts'][0]['dates']->first()['times']);
+        $this->assertEquals(100, $result[1]['attempts'][0]['dates']->first()['seconds_total']);
         $this->assertEquals(1, $result[1]['attempts'][1]['attempt']);
         $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][1]['dates']->first()['date']);
-        $this->assertCount(1, $result[1]['attempts'][1]['dates']->first()['times']);
+        $this->assertEquals(140, $result[1]['attempts'][1]['dates']->first()['seconds_total']);
     }
 }

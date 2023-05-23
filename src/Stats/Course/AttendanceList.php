@@ -19,7 +19,7 @@ class AttendanceList extends AbstractCourseStat
         $topicsIds = $this->course->topics()->pluck($topicTable . '.id');
 
         return CourseProgress::query()
-            ->selectRaw('cast(' . $userAttendanceTable . '.attendance_date as date) AS date, cast(' . $userAttendanceTable . '.attendance_date as time) AS time, ' . $userTable . '.email, user_id, ' . $userAttendanceTable . '.attempt')
+            ->selectRaw('cast(' . $userAttendanceTable . '.attendance_date as date) AS date, cast(' . $userAttendanceTable . '.attendance_date as time) AS time, ' . $userTable . '.email, user_id, ' . $userAttendanceTable . '.attempt,' . $userAttendanceTable . '.seconds')
             ->join($userTable, $courseProgressTable . '.user_id', '=', $userTable . '.id')
             ->join($userAttendanceTable, $courseProgressTable . '.id', '=', $userAttendanceTable . '.course_progress_id')
             ->whereIn('topic_id', $topicsIds)
@@ -33,9 +33,9 @@ class AttendanceList extends AbstractCourseStat
                     'attempt' => $attempt,
                     'dates' => collect($dates)->groupBy(['date'])->map(fn($times, $date) => [
                         'date' => $date,
-                        'times' => collect($times)->groupBy(['time'])->map(fn($items, $time) => $time)->values(),
+                        'seconds_total' => collect($times)->max('seconds') - collect($times)->min('seconds'),
                     ]),
-                ]),
+                ])->values(),
             ])
             ->values()
             ->toArray();
