@@ -48,8 +48,13 @@ class StatsTest extends TestCase
         $response = $this->actingAs($admin)->json('GET', '/api/admin/stats/course/' . $course->getKey());
         $response->assertOk();
         $stats = config('reports.stats')[Course::class] ?? [];
+
         $response->assertJsonStructure([
             'data' => $stats
+        ]);
+
+        $response->assertJsonFragment([
+            'average_time' => 45
         ]);
     }
 
