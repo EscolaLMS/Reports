@@ -10,8 +10,11 @@ class AverageTimePerTopic extends AbstractCourseStat
 {
     public function calculate(): Collection
     {
-        return $this->course->topics->mapWithKeys(fn (Topic $topic) => [
-            $topic->id => TopicAverageTime::make($topic)->calculate()
+        return $this->course->topics->mapWithKeys(fn(Topic $topic) => [
+            $topic->id => [
+                'average_time' => TopicAverageTime::make($topic)->calculate(),
+                'title' => $topic->title,
+            ]
         ]);
     }
 }

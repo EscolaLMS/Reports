@@ -99,9 +99,9 @@ class StatsTest extends TestCase
 
         $results = AverageTimePerTopic::make($course)->calculate();
 
-        $this->assertEquals(45, $results->get($course->topics->get(0)->id));
-        $this->assertEquals(25, $results->get($course->topics->get(1)->id));
-        $this->assertEquals(75, $results->get($course->topics->get(2)->id));
+        $this->assertEquals(45, $results->get($course->topics->get(0)->id)['average_time']);
+        $this->assertEquals(25, $results->get($course->topics->get(1)->id)['average_time']);
+        $this->assertEquals(75, $results->get($course->topics->get(2)->id)['average_time']);
     }
 
     public function testCourseMoneyEarned()
