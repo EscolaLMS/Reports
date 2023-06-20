@@ -20,8 +20,7 @@ class FinishedTopicsExport implements Export,WithMultipleSheets
 
     public function __construct(Course $course)
     {
-        $stats = (new FinishedTopics($course))->calculate();
-        $this->data = collect($stats)
+        $this->data = collect(FinishedTopics::make($course)->calculate())
             ->map(function ($item) {
                 $item['topics'] = $item['topics']->sortBy('id');
 

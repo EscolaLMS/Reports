@@ -7,6 +7,7 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Reports\Exports\Stats\Course\FinishedTopicsExport;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
@@ -111,7 +112,7 @@ class StatsTest extends TestCase
             ->assertJsonStructure(['data' => $stats]);
     }
 
-    public function testExportCourseStats(): void
+    public function testExportFinishedTopicsStats(): void
     {
         Excel::fake();
 
@@ -135,6 +136,26 @@ class StatsTest extends TestCase
             ])
             ->assertOk();
 
-        Excel::assertDownloaded("finished_topics_$courseId.xlsx");
+        Excel::assertDownloaded("finished_topics_$courseId.xlsx", function (FinishedTopicsExport $export) {
+            $this->assertCount(3, $export->sheets());
+
+            return true;
+        });
+    }
+
+    public function testExportCourseStatsNotExists(): void
+    {
+        $course = $this->createCourseWithLessonAndTopic(3);
+
+        /** @var TestResponse $response */
+        $this
+            ->actingAs($this->makeAdmin())
+            ->json( 'GET', '/api/admin/stats/course/' . $course->getKey() . '/export', [
+                'stat' => \EscolaLms\Reports\Stats\Course\MoneyEarned::class,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => __('The export for the statistics does not exist.'),
+            ]);
     }
 }
