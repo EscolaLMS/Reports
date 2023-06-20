@@ -8,8 +8,10 @@ use EscolaLms\Reports\Http\Controllers\Admin\Swagger\StatsSwagger;
 use EscolaLms\Reports\Http\Requests\Admin\CartStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\CourseStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\DateRangeStatsRequest;
+use EscolaLms\Reports\Http\Requests\Admin\ExportCourseStatRequest;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StatsController extends EscolaLmsBaseController implements StatsSwagger
 {
@@ -39,5 +41,10 @@ class StatsController extends EscolaLmsBaseController implements StatsSwagger
     public function dateRange(DateRangeStatsRequest $request): JsonResponse
     {
         return $this->sendResponse($this->statsService->calculate($request->getDateRange(), $request->getStats()), __('Stats for Models between dates'));
+    }
+
+    public function courseExport(ExportCourseStatRequest $request): BinaryFileResponse
+    {
+        return $this->statsService->export($request->getCourse(), $request->getStat());
     }
 }

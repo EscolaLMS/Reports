@@ -2,9 +2,12 @@
 
 namespace EscolaLms\Reports\Services;
 
+use EscolaLms\Reports\Exceptions\ExportNotExistsException;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use EscolaLms\Reports\Stats\StatsContract;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StatsService implements StatsServiceContract
 {
@@ -42,5 +45,24 @@ class StatsService implements StatsServiceContract
             }
         }
         return [];
+    }
+
+    /**
+     * @throws ExportNotExistsException
+     */
+    public function export($model, string $stat): BinaryFileResponse
+    {
+        $available = $this->getAvailableStats($model);
+        $exportClass = 'EscolaLms\Reports\Exports\Stats\Course\\' .  class_basename($stat) . 'Export';
+
+        if (!in_array($stat, $available) || !class_exists($exportClass)) {
+            throw new ExportNotExistsException();
+        }
+
+        return Excel::download(
+            (new $exportClass($model)),
+            Str::snake(class_basename($stat)) . '_'. $model->getKey() . '.xlsx',
+            \Maatwebsite\Excel\Excel::XLS
+        );
     }
 }
