@@ -29,7 +29,7 @@ abstract class FinishedTopicsSheet implements FromCollection, WithHeadings, Shou
         if ($this->stats->first()) {
             $topics = collect($this->stats->first())
                 ->get('topics')
-                ->map(fn (array $item) => Str::afterLast(Arr::get($item, 'topicable_type'), '\\') . ' ' . Arr::get($item, 'title'))
+                ->map(fn (array $item) => class_basename(Arr::get($item, 'topicable_type')) . ' ' . Arr::get($item, 'title'))
                 ->toArray();
 
             $headings = array_merge($headings, $topics);

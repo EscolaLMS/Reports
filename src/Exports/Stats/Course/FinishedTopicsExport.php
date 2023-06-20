@@ -3,7 +3,6 @@
 namespace EscolaLms\Reports\Exports\Stats\Course;
 
 use EscolaLms\Courses\Models\Course;
-use EscolaLms\PcgExport\Exports\Export;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsAttemptsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsSecondsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsStatusesSheet;
@@ -12,7 +11,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class FinishedTopicsExport implements Export,WithMultipleSheets
+class FinishedTopicsExport implements WithMultipleSheets
 {
     use Exportable;
 
