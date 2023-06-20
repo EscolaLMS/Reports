@@ -271,6 +271,54 @@
                     }
                 ]
             }
+        },
+        "/api/admin/stats/course/{course_id}/export": {
+            "get": {
+                "tags": [
+                    "Admin Reports"
+                ],
+                "summary": "Export stat for Course",
+                "description": "",
+                "operationId": "4188cc878a626303ab1652a1c57ffa50",
+                "parameters": [
+                    {
+                        "name": "course_id",
+                        "in": "path",
+                        "description": "Course ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "stat",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/vnd.ms-excel": {}
+                        }
+                    },
+                    "422": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
         }
     }
 }
