@@ -26,7 +26,7 @@ abstract class FinishedTopicsSheet implements FromCollection, WithHeadings, Shou
             __('Email'),
         ];
 
-        if ($this->stats->first()) {
+        if ($this->stats->isNotEmpty()) {
             $topics = collect($this->stats->first())
                 ->get('topics')
                 ->map(fn (array $item) => class_basename(Arr::get($item, 'topicable_type')) . ' ' . Arr::get($item, 'title'))
