@@ -303,7 +303,7 @@
                     "200": {
                         "description": "successful operation",
                         "content": {
-                            "application/vnd.ms-excel": {}
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {}
                         }
                     },
                     "422": {
