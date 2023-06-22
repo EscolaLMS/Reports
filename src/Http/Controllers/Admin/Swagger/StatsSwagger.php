@@ -218,7 +218,7 @@ interface StatsSwagger
      *          response=200,
      *          description="successful operation",
      *          @OA\MediaType(
-     *              mediaType="application/vnd.ms-excel",
+     *              mediaType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
      *          ),
      *      ),
      *      @OA\Response(
