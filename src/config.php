@@ -51,7 +51,22 @@ return [
             'limit' => 10,
             'history' => false,
             'cron' => '0 0 * * *',
-        ]
+        ],
+        \EscolaLms\Reports\Metrics\CoursesAuthoredPopularityMetric::class => [
+            'limit' => 10,
+            'history' => false,
+            'cron' => '0 0 * * *',
+        ],
+        \EscolaLms\Reports\Metrics\CoursesAuthoredMoneySpentMetric::class => [
+            'limit' => 10,
+            'history' => false,
+            'cron' => '0 0 * * *',
+        ],
+        \EscolaLms\Reports\Metrics\CoursesAuthoredSecondsSpentMetric::class => [
+            'limit' => 10,
+            'history' => false,
+            'cron' => '0 0 * * *',
+        ],
     ],
     /**
      * By modyfing this associative array, you can add or remove available Stats which can be returned for single objects of given class
