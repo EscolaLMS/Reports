@@ -88,15 +88,13 @@ class StatsTest extends TestCase
         $this->progressUserInCourse($student3, $course, 45, ProgressStatus::COMPLETE);
 
         /** @var TestResponse $response */
-        $response = $this->actingAs($admin)->json('GET', '/api/admin/stats/course/' . $course->getKey(), [
+        $this->actingAs($admin)->json('GET', '/api/admin/stats/course/' . $course->getKey(), [
             'stats' => [\EscolaLms\Reports\Stats\Course\FinishedTopics::class]
-        ]);
-
-        $response->assertOk();
-
-        $response->assertJsonFragment([
-            'email' => $student3->email
-        ]);
+        ])
+            ->assertOk()
+            ->assertJsonFragment([
+                'email' => $student3->email
+            ]);
     }
 
     public function testCoursePartial()
