@@ -80,11 +80,6 @@ class FinishedTopics extends AbstractCourseStat
                 ->on($this->courseProgressTable . '.user_id', '=', $this->userTable . '.id')
                 ->on($this->courseProgressTable . '.topic_id', '=', $this->topicTable . '.id')
             )
-            ->addSelect([
-                $this->courseProgressTable . '.finished_at',
-                $this->courseProgressTable . '.seconds',
-                $this->courseProgressTable . '.started_at',
-            ])
             ->get();
     }
 
@@ -100,11 +95,6 @@ class FinishedTopics extends AbstractCourseStat
                 ->on($this->courseProgressTable . '.user_id', '=', $this->userTable . '.id')
                 ->on($this->courseProgressTable . '.topic_id', '=', $this->topicTable . '.id')
             )
-            ->addSelect([
-                $this->courseProgressTable . '.finished_at',
-                $this->courseProgressTable . '.seconds',
-                $this->courseProgressTable . '.started_at',
-            ])
             ->get();
     }
 
