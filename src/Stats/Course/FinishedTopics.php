@@ -98,7 +98,7 @@ class FinishedTopics extends AbstractCourseStat
             ->get();
     }
 
-    private function formatResult($result): array
+    private function formatResult(Collection $result): array
     {
         return $result
             ->groupBy('user_email')
