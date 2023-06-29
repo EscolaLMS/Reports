@@ -7,6 +7,8 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Reports\Exports\Stats\Course\FinishedTopicsExport;
+use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Courses\Models\Group;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
@@ -14,6 +16,7 @@ use EscolaLms\Reports\ValueObject\DateRange;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Testing\TestResponse;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StatsTest extends TestCase
 {
@@ -47,11 +50,15 @@ class StatsTest extends TestCase
 
         /** @var TestResponse $response */
         $response = $this->actingAs($admin)->json('GET', '/api/admin/stats/course/' . $course->getKey());
-
         $response->assertOk();
         $stats = config('reports.stats')[Course::class] ?? [];
+
         $response->assertJsonStructure([
             'data' => $stats
+        ]);
+
+        $response->assertJsonFragment([
+            'average_time' => 45
         ]);
     }
 
@@ -141,5 +148,52 @@ class StatsTest extends TestCase
             ->json('GET', '/api/admin/stats/date-range')
             ->assertOk()
             ->assertJsonStructure(['data' => $stats]);
+    }
+
+    public function testExportFinishedTopicsStats(): void
+    {
+        Excel::fake();
+
+        $course = $this->createCourseWithLessonAndTopic(3);
+        /** @var TestUser $student */
+        $student = $this->makeStudent();
+        $student->courses()->save($course);
+        $student2 = $this->makeStudent();
+        $student2->courses()->save($course);
+
+        $this->progressUserInCourse($student, $course);
+        $this->progressUserInCourse($student2, $course, 30, ProgressStatus::COMPLETE);
+
+        $courseId = $course->getKey();
+
+        /** @var TestResponse $response */
+        $this
+            ->actingAs($this->makeAdmin())
+            ->json( 'GET', '/api/admin/stats/course/' . $courseId . '/export', [
+                'stat' => \EscolaLms\Reports\Stats\Course\FinishedTopics::class,
+            ])
+            ->assertOk();
+
+        Excel::assertDownloaded("finished_topics_$courseId.xlsx", function (FinishedTopicsExport $export) {
+            $this->assertCount(3, $export->sheets());
+
+            return true;
+        });
+    }
+
+    public function testExportCourseStatsNotExists(): void
+    {
+        $course = $this->createCourseWithLessonAndTopic(3);
+
+        /** @var TestResponse $response */
+        $this
+            ->actingAs($this->makeAdmin())
+            ->json( 'GET', '/api/admin/stats/course/' . $course->getKey() . '/export', [
+                'stat' => \EscolaLms\Reports\Stats\Course\MoneyEarned::class,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonFragment([
+                'message' => __('The export for the statistics does not exist.'),
+            ]);
     }
 }

@@ -5,7 +5,9 @@ namespace EscolaLms\Reports\Http\Controllers\Admin\Swagger;
 use EscolaLms\Reports\Http\Requests\Admin\CartStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\CourseStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\DateRangeStatsRequest;
+use EscolaLms\Reports\Http\Requests\Admin\ExportCourseStatRequest;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 interface StatsSwagger
 {
@@ -185,4 +187,48 @@ interface StatsSwagger
      * )
      */
     public function dateRange(DateRangeStatsRequest $request): JsonResponse;
+
+    /**
+     * @OA\Get(
+     *     path="/api/admin/stats/course/{course_id}/export",
+     *     summary="Export stat for Course",
+     *     description="",
+     *     tags={"Admin Reports"},
+     *      security={
+     *          {"passport": {}},
+     *      },
+     *     @OA\Parameter(
+     *          name="course_id",
+     *          required=true,
+     *          in="path",
+     *          description="Course ID",
+     *          @OA\Schema(
+     *              type="integer",
+     *          ),
+     *      ),
+     *     @OA\Parameter(
+     *          name="stat",
+     *          required=true,
+     *          in="query",
+     *          @OA\Schema(
+     *              type="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation",
+     *          @OA\MediaType(
+     *              mediaType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Bad request",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      )
+     * )
+     */
+    public function courseExport(ExportCourseStatRequest $request): BinaryFileResponse;
 }

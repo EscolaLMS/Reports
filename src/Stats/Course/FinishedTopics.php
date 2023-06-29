@@ -58,8 +58,13 @@ class FinishedTopics extends AbstractCourseStat
             ->select(
                 $this->topicTable . '.id as topic_id',
                 $this->topicTable . '.title as topic_title',
+                $this->topicTable . '.topicable_type',
                 $this->userTable . '.id as user_id',
                 $this->userTable . '.email as user_email',
+                $this->courseProgressTable . '.finished_at',
+                $this->courseProgressTable . '.seconds',
+                $this->courseProgressTable . '.started_at',
+                $this->courseProgressTable . '.attempt',
             )
             ->join($this->lessonTable, $this->topicTable . '.lesson_id', '=', $this->lessonTable . '.id')
             ->join($this->courseTable, $this->lessonTable . '.course_id', '=', $this->courseTable . '.id')
@@ -116,6 +121,8 @@ class FinishedTopics extends AbstractCourseStat
                     'started_at' => $topic->started_at,
                     'seconds' => $topic->seconds,
                     'finished_at' => $topic->finished_at,
+                    'attempt' => $topic->attempt,
+                    'topicable_type' => $topic->topicable_type,
                 ]),
                 'seconds_total' => collect($topics)->sum('seconds'),
             ])
