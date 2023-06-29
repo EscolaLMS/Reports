@@ -73,8 +73,7 @@ class FinishedTopics extends AbstractCourseStat
 
     private function getIndividualUsers(): Collection
     {
-        $individualUsersQuery = clone $this->getBaseQuery();
-        return $individualUsersQuery->join($this->courseUserTable, $this->courseTable . '.id', '=', $this->courseUserTable . '.course_id')
+        return $this->getBaseQuery()->join($this->courseUserTable, $this->courseTable . '.id', '=', $this->courseUserTable . '.course_id')
             ->join($this->userTable, $this->courseUserTable . '.user_id', '=', $this->userTable . '.id')
             ->leftJoin($this->courseProgressTable, fn(JoinClause $join) => $join
                 ->on($this->courseProgressTable . '.user_id', '=', $this->userTable . '.id')
@@ -85,9 +84,7 @@ class FinishedTopics extends AbstractCourseStat
 
     private function getGroupUsers(): Collection
     {
-        $groupUsersQuery = clone $this->getBaseQuery();
-
-        return $groupUsersQuery->join($this->courseGroupTable, $this->courseTable . '.id', '=', $this->courseGroupTable . '.course_id')
+        return $this->getBaseQuery()->join($this->courseGroupTable, $this->courseTable . '.id', '=', $this->courseGroupTable . '.course_id')
             ->join($this->groupTable, $this->courseGroupTable . '.group_id', '=', $this->groupTable . '.id')
             ->join($this->userGroupTable, $this->groupTable . '.id', '=', $this->userGroupTable . '.group_id')
             ->join($this->userTable, $this->userGroupTable . '.user_id', '=', $this->userTable . '.id')
