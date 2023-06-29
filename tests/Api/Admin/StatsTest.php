@@ -9,6 +9,7 @@ use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Exports\Stats\Course\FinishedTopicsExport;
 use EscolaLms\Reports\Tests\Models\TestUser;
+use EscolaLms\Courses\Models\Group;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use EscolaLms\Reports\ValueObject\DateRange;
@@ -59,6 +60,41 @@ class StatsTest extends TestCase
         $response->assertJsonFragment([
             'average_time' => 45
         ]);
+    }
+
+    public function testFinishedTopicsWithGroupUsers()
+    {
+        $admin = $this->makeAdmin();
+
+        $course = $this->createCourseWithLessonAndTopic(3);
+        /** @var TestUser $student */
+        $student = $this->makeStudent();
+        $student->courses()->save($course);
+        $student2 = $this->makeStudent();
+        $student2->courses()->save($course);
+
+        $student3 = $this->makeStudent([
+            'first_name' => 'Test',
+            'last_name' => 'Student',
+            'email' => 'test@test.test'
+        ]);
+        $group = Group::factory()->create();
+        $group->users()->save($student3);
+        $course->groups()->save($group);
+
+
+        $this->progressUserInCourse($student, $course);
+        $this->progressUserInCourse($student2, $course, 30, ProgressStatus::COMPLETE);
+        $this->progressUserInCourse($student3, $course, 45, ProgressStatus::COMPLETE);
+
+        /** @var TestResponse $response */
+        $this->actingAs($admin)->json('GET', '/api/admin/stats/course/' . $course->getKey(), [
+            'stats' => [\EscolaLms\Reports\Stats\Course\FinishedTopics::class]
+        ])
+            ->assertOk()
+            ->assertJsonFragment([
+                'email' => $student3->email
+            ]);
     }
 
     public function testCoursePartial()
