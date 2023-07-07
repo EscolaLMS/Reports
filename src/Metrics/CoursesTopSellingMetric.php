@@ -31,7 +31,7 @@ class CoursesTopSellingMetric extends AbstractCoursesMetric
             ->groupBy($courseTable . '.id', $courseTable . '.title')
             ->whereNotNull($courseTable . '.id')
             ->orderBy('value', 'DESC')
-            ->take($limit ?? $this->defaultLimit())
+            ->take($this->getLimit($limit))
             ->get(['id', 'label', 'value']);
     }
 

@@ -66,7 +66,7 @@ interface ReportsSwagger
      *          name="limit",
      *          required=false,
      *          in="query",
-     *          description="how many datapoints should be returned",
+     *          description="how many datapoints should be returned. To get all datapoints set limit as -1",
      *          @OA\Schema(
      *              type="integer",
      *          ),

@@ -31,7 +31,7 @@ abstract class AbstractCoursesMoneySpentMetric extends AbstractCoursesMetric
             ->groupBy($courseTable . '.id', $courseTable . '.title')
             ->orderBy('value', 'DESC')
             ->whereNotNull($courseTable . '.id')
-            ->take($limit ?? $this->defaultLimit());
+            ->take($this->getLimit($limit));
 
         return $this->additionalConditions($query)
             ->get(['id', 'label', 'value']);

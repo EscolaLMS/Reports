@@ -26,7 +26,7 @@ class TutorsPopularityMetric extends AbstractMetric
             ->groupBy($usersTable . '.id', $usersTable . '.email')
             ->orderBy('value', 'DESC')
             ->whereNotNull($usersTable . '.id')
-            ->take($limit ?? $this->defaultLimit())
+            ->take($this->getLimit($limit))
             ->get(['id', 'label', 'value'])
             ->map(function ($item) {
                 if (is_object($item)) {
