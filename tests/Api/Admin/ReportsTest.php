@@ -240,6 +240,19 @@ class ReportsTest extends TestCase
         ]);
     }
 
+    public function testReportUnlimited(): void
+    {
+        Course::factory()->count(20)->create();
+
+        $this
+            ->actingAs($this->admin)->json('GET', '/api/admin/reports/report', [
+                'metric' => \EscolaLms\Reports\Metrics\CoursesPopularityMetric::class,
+                'limit' => -1,
+            ])
+            ->assertOk()
+            ->assertJsonCount(20, 'data');
+    }
+
     public function testReportHistorical()
     {
         $course = Course::factory()->create();

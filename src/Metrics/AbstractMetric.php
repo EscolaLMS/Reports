@@ -66,4 +66,9 @@ abstract class AbstractMetric implements MetricContract
         }
         return false;
     }
+
+    public function getLimit(?int $limit): ?int
+    {
+        return $limit ? $limit < 0 ? null : $limit : $this->defaultLimit();
+    }
 }

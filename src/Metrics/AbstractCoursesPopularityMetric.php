@@ -12,7 +12,7 @@ abstract class AbstractCoursesPopularityMetric extends AbstractCoursesMetric
     {
         $query = Course::withCount(['users'])
             ->orderBy('users_count', 'DESC')
-            ->take($limit ?? $this->defaultLimit());
+            ->take($this->getLimit($limit));
 
         return $this
             ->additionalConditions($query)

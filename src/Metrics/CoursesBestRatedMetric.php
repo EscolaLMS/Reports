@@ -28,7 +28,7 @@ class CoursesBestRatedMetric extends AbstractCoursesMetric
             ->join($courseTable, $questionnaireModelTable . '.model_id', '=', $courseTable . '.id',)
             ->groupBy($questionnaireModelTable . '.model_id', $courseTable . '.title')
             ->orderBy('value', 'DESC')
-            ->take($limit ?? $this->defaultLimit())
+            ->take($this->getLimit($limit))
             ->get(['id', 'label', 'value']);
     }
 
