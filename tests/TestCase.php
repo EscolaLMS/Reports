@@ -7,6 +7,7 @@ use EscolaLms\Cart\Facades\Shop;
 use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
 use EscolaLms\Core\Tests\TestCase as CoreTestCase;
 use EscolaLms\Courses\EscolaLmsCourseServiceProvider;
+use EscolaLms\HeadlessH5P\HeadlessH5PServiceProvider;
 use EscolaLms\Payments\Providers\PaymentsServiceProvider;
 use EscolaLms\Questionnaire\EscolaLmsQuestionnaireServiceProvider;
 use EscolaLms\Reports\Database\Seeders\ReportsPermissionSeeder;
@@ -15,6 +16,7 @@ use EscolaLms\Reports\Tests\Models\Client;
 use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
+use EscolaLms\TopicTypes\EscolaLmsTopicTypesServiceProvider;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
@@ -39,6 +41,8 @@ class TestCase extends CoreTestCase
             EscolaLmsCategoriesServiceProvider::class,
             EscolaLmsReportsServiceProvider::class,
             EscolaLmsCourseServiceProvider::class,
+            EscolaLmsTopicTypesServiceProvider::class,
+            HeadlessH5PServiceProvider::class,
             PaymentsServiceProvider::class,
             EscolaLmsCartServiceProvider::class,
             EscolaLmsScormServiceProvider::class,

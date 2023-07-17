@@ -8,12 +8,14 @@ use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
+use EscolaLms\HeadlessH5P\Models\H5PContent;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsAttemptsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsSecondsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsStatusesSheet;
 use EscolaLms\Reports\Stats\Course\FinishedTopics;
 use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\TestCase;
+use EscolaLms\TopicTypes\Models\TopicContent\H5P;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ExportStatsTest extends TestCase
@@ -52,6 +54,13 @@ class ExportStatsTest extends TestCase
         ])
             ->create();
 
+        $topic3 = Topic::factory()->state([
+            'lesson_id' => $lesson->getKey(),
+        ])
+            ->create();
+        $topicable_h5p = H5P::factory()->create();
+        $topic3->topicable()->associate($topicable_h5p)->save();
+
         $course->users()->attach([$user1->getKey(), $user2->getKey(), $user3->getKey()]);
 
         CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user1->getKey(), 'seconds' => 100, 'started_at' => Carbon::now(), 'finished_at' => Carbon::now(), 'attempt' => 0]);
@@ -67,6 +76,7 @@ class ExportStatsTest extends TestCase
             __('Email'),
             'PDF ' . $topic1->title,
             'Audio ' . $topic2->title,
+            H5PContent::find($topicable_h5p->value)->library->uberName . ' ' . $topic3->title
         ], $export->headings());
 
         $this->assertEquals(collect($result), $export->collection());
@@ -79,27 +89,27 @@ class ExportStatsTest extends TestCase
                 'sheet' => FinishedTopicsAttemptsSheet::class,
                 'title' => 'Attempts',
                 [
-                    collect(['abc@example.com', 1, 3]),
-                    collect(['def@example.com', 2, 1]),
-                    collect(['ghi@example.com', 1, 1]),
+                    collect(['abc@example.com', 1, 3, 1]),
+                    collect(['def@example.com', 2, 1, 1]),
+                    collect(['ghi@example.com', 1, 1, 1]),
                 ],
             ],
             [
                 'sheet' => FinishedTopicsSecondsSheet::class,
                 'title' => 'Seconds',
                 [
-                    collect(['abc@example.com', 100, 0]),
-                    collect(['def@example.com', 150, 0]),
-                    collect(['ghi@example.com', 0, 0]),
+                    collect(['abc@example.com', 100, 0, 0]),
+                    collect(['def@example.com', 150, 0, 0]),
+                    collect(['ghi@example.com', 0, 0, 0]),
                 ],
             ],
             [
                 'sheet' => FinishedTopicsStatusesSheet::class,
                 'title' => 'Statuses',
                 [
-                    collect(['abc@example.com', 2, 1]),
-                    collect(['def@example.com', 0, 0]),
-                    collect(['ghi@example.com', 0, 0]),
+                    collect(['abc@example.com', 2, 1, 0]),
+                    collect(['def@example.com', 0, 0, 0]),
+                    collect(['ghi@example.com', 0, 0, 0]),
                 ],
             ]
         ];
