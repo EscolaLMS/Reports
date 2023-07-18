@@ -2,9 +2,7 @@
 
 namespace EscolaLms\Reports\Exports\Stats\Course\Sheets;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -29,7 +27,7 @@ abstract class FinishedTopicsSheet implements FromCollection, WithHeadings, Shou
         if ($this->stats->isNotEmpty()) {
             $topics = collect($this->stats->first())
                 ->get('topics')
-                ->map(fn (array $item) => class_basename(Arr::get($item, 'topicable_type')) . ' ' . Arr::get($item, 'title'))
+                ->pluck('title')
                 ->toArray();
 
             $headings = array_merge($headings, $topics);

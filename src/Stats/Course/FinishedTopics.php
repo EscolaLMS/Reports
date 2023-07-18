@@ -11,6 +11,7 @@ use EscolaLms\Courses\Models\CourseUserPivot;
 use EscolaLms\Courses\Models\Group;
 use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
+use EscolaLms\Reports\Stats\Course\Strategies\TopicTitleStrategyContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\JoinClause;
@@ -58,6 +59,7 @@ class FinishedTopics extends AbstractCourseStat
             ->select(
                 $this->topicTable . '.id as topic_id',
                 $this->topicTable . '.title as topic_title',
+                $this->topicTable . '.topicable_id',
                 $this->topicTable . '.topicable_type',
                 $this->userTable . '.id as user_id',
                 $this->userTable . '.email as user_email',
@@ -66,6 +68,7 @@ class FinishedTopics extends AbstractCourseStat
                 $this->courseProgressTable . '.started_at',
                 $this->courseProgressTable . '.attempt',
             )
+            ->with('topicable')
             ->join($this->lessonTable, $this->topicTable . '.lesson_id', '=', $this->lessonTable . '.id')
             ->join($this->courseTable, $this->lessonTable . '.course_id', '=', $this->courseTable . '.id')
             ->where($this->courseTable . '.id', '=', $this->course->getKey());
@@ -73,7 +76,8 @@ class FinishedTopics extends AbstractCourseStat
 
     private function getIndividualUsers(): Collection
     {
-        return $this->getBaseQuery()->join($this->courseUserTable, $this->courseTable . '.id', '=', $this->courseUserTable . '.course_id')
+        return $this->getBaseQuery()
+            ->join($this->courseUserTable, $this->courseTable . '.id', '=', $this->courseUserTable . '.course_id')
             ->join($this->userTable, $this->courseUserTable . '.user_id', '=', $this->userTable . '.id')
             ->leftJoin($this->courseProgressTable, fn(JoinClause $join) => $join
                 ->on($this->courseProgressTable . '.user_id', '=', $this->userTable . '.id')
@@ -84,7 +88,8 @@ class FinishedTopics extends AbstractCourseStat
 
     private function getGroupUsers(): Collection
     {
-        return $this->getBaseQuery()->join($this->courseGroupTable, $this->courseTable . '.id', '=', $this->courseGroupTable . '.course_id')
+        return $this->getBaseQuery()
+            ->join($this->courseGroupTable, $this->courseTable . '.id', '=', $this->courseGroupTable . '.course_id')
             ->join($this->groupTable, $this->courseGroupTable . '.group_id', '=', $this->groupTable . '.id')
             ->join($this->userGroupTable, $this->groupTable . '.id', '=', $this->userGroupTable . '.group_id')
             ->join($this->userTable, $this->userGroupTable . '.user_id', '=', $this->userTable . '.id')
@@ -104,7 +109,7 @@ class FinishedTopics extends AbstractCourseStat
                 'email' => $userEmail,
                 'topics' => collect($topics)->map(fn($topic) => [
                     'id' => $topic->topic_id,
-                    'title' => $topic->topic_title,
+                    'title' => (new TopicTitleStrategyContext($topic))->getStrategy()->makeTitle(),
                     'started_at' => $topic->started_at,
                     'seconds' => $topic->seconds,
                     'finished_at' => $topic->finished_at,
