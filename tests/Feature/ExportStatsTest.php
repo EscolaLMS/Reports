@@ -10,12 +10,15 @@ use EscolaLms\Courses\Models\Lesson;
 use EscolaLms\Courses\Models\Topic;
 use EscolaLms\HeadlessH5P\Models\H5PContent;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsAttemptsSheet;
+use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsInfoSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsSecondsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsStatusesSheet;
 use EscolaLms\Reports\Stats\Course\FinishedTopics;
 use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\TestCase;
+use EscolaLms\TopicTypes\Models\TopicContent\Audio;
 use EscolaLms\TopicTypes\Models\TopicContent\H5P;
+use EscolaLms\TopicTypes\Models\TopicContent\PDF;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class ExportStatsTest extends TestCase
@@ -27,37 +30,22 @@ class ExportStatsTest extends TestCase
      */
     public function testFinishedTopicsSheets(string $sheet, string $title, array $result): void
     {
-        $user1 = User::factory()
-            ->state(['email' => 'abc@example.com'])
-            ->create();
-
-        $user2 = User::factory()
-            ->state(['email' => 'def@example.com'])
-            ->create();
-
-        $user3 = User::factory()
-            ->state(['email' => 'ghi@example.com'])
-            ->create();
+        $user1 = User::factory()->state(['email' => 'abc@example.com'])->create();
+        $user2 = User::factory()->state(['email' => 'def@example.com'])->create();
+        $user3 = User::factory()->state(['email' => 'ghi@example.com'])->create();
 
         $course = Course::factory()->create();
         $lesson = Lesson::factory()->state(['course_id' => $course->getKey()])->create();
 
-        $topic1 = Topic::factory()->state([
-            'lesson_id' => $lesson->getKey(),
-            'topicable_type' => 'EscolaLms\TopicTypes\Models\TopicContent\PDF',
-        ])
-            ->create();
+        $topic1 = Topic::factory()->state(['lesson_id' => $lesson->getKey(), 'can_skip' => true])->create();
+        $topicablePdf = Pdf::factory()->state(['length' => 100, 'page_count'=> 3])->create();
+        $topic1->topicable()->associate($topicablePdf)->save();
 
-        $topic2 = Topic::factory()->state([
-            'lesson_id' => $lesson->getKey(),
-            'topicable_type' => 'EscolaLms\TopicTypes\Models\TopicContent\Audio',
-        ])
-            ->create();
+        $topic2 = Topic::factory()->state(['lesson_id' => $lesson->getKey(), 'can_skip' => false])->create();
+        $topicableAudio = Audio::factory()->state(['length' => 321])->create();
+        $topic2->topicable()->associate($topicableAudio)->save();
 
-        $topic3 = Topic::factory()->state([
-            'lesson_id' => $lesson->getKey(),
-        ])
-            ->create();
+        $topic3 = Topic::factory()->state(['lesson_id' => $lesson->getKey(), 'can_skip' => false])->create();
         $topicable_h5p = H5P::factory()->create();
         $topic3->topicable()->associate($topicable_h5p)->save();
 
@@ -73,7 +61,7 @@ class ExportStatsTest extends TestCase
         $this->assertEquals(__($title), $export->title());
 
         $this->assertEquals([
-            __('Email'),
+            $export->firstHeader,
             'PDF ' . $topic1->title,
             'Audio ' . $topic2->title,
             H5PContent::find($topicable_h5p->value)->library->uberName . ' ' . $topic3->title
@@ -111,7 +99,16 @@ class ExportStatsTest extends TestCase
                     collect(['def@example.com', 0, 0, 0]),
                     collect(['ghi@example.com', 0, 0, 0]),
                 ],
-            ]
+            ],
+            [
+                'sheet' => FinishedTopicsInfoSheet::class,
+                'title' => 'Topic info',
+                [
+                    collect(['Length', 100, 321, null]),
+                    collect(['Page count', 3, null, null]),
+                    collect(['Can skip', true, false, false]),
+                ],
+            ],
         ];
     }
 }

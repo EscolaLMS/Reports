@@ -4,6 +4,7 @@ namespace EscolaLms\Reports\Exports\Stats\Course;
 
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsAttemptsSheet;
+use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsInfoSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsSecondsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsStatusesSheet;
 use EscolaLms\Reports\Stats\Course\FinishedTopics;
@@ -33,6 +34,7 @@ class FinishedTopicsExport implements WithMultipleSheets
             new FinishedTopicsStatusesSheet($this->data),
             new FinishedTopicsSecondsSheet($this->data),
             new FinishedTopicsAttemptsSheet($this->data),
+            new FinishedTopicsInfoSheet($this->data),
         ];
     }
 }

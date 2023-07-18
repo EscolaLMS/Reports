@@ -173,7 +173,7 @@ class StatsTest extends TestCase
             ->assertOk();
 
         Excel::assertDownloaded("finished_topics_$courseId.xlsx", function (FinishedTopicsExport $export) {
-            $this->assertCount(3, $export->sheets());
+            $this->assertCount(4, $export->sheets());
 
             return true;
         });
