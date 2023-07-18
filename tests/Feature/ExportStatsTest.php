@@ -49,6 +49,13 @@ class ExportStatsTest extends TestCase
         $topicable_h5p = H5P::factory()->create();
         $topic3->topicable()->associate($topicable_h5p)->save();
 
+        $topic3 = Topic::factory()->state([
+            'lesson_id' => $lesson->getKey(),
+        ])
+            ->create();
+        $topicable_h5p = H5P::factory()->create();
+        $topic3->topicable()->associate($topicable_h5p)->save();
+
         $course->users()->attach([$user1->getKey(), $user2->getKey(), $user3->getKey()]);
 
         CourseProgress::create(['topic_id' => $topic1->getKey(), 'user_id' => $user1->getKey(), 'seconds' => 100, 'started_at' => Carbon::now(), 'finished_at' => Carbon::now(), 'attempt' => 0]);
