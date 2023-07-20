@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 abstract class FinishedTopicsSheet implements FromCollection, WithHeadings, ShouldAutoSize, WithTitle, WithStrictNullComparison
 {
     protected Collection $stats;
+    public string $firstHeader = 'Email';
 
     public function __construct(Collection $stats)
     {
@@ -21,7 +22,7 @@ abstract class FinishedTopicsSheet implements FromCollection, WithHeadings, Shou
     public function headings(): array
     {
         $headings = [
-            __('Email'),
+            __($this->firstHeader),
         ];
 
         if ($this->stats->isNotEmpty()) {
