@@ -22,7 +22,9 @@ class FinishedTopicsExport implements WithMultipleSheets
     {
         $this->data = collect(FinishedTopics::make($course)->calculate())
             ->map(function ($item) {
-                $item['topics'] = $item['topics']->sortBy('id');
+                $item['topics'] = $item['topics']
+                    ->sortBy('id')
+                    ->unique('id');
 
                 return $item;
             });

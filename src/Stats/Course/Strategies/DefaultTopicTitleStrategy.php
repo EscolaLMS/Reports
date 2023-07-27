@@ -15,6 +15,6 @@ class DefaultTopicTitleStrategy implements TopicTitleStrategy
 
     public function makeTitle(): string
     {
-        return class_basename($this->topic->topicable_type) . ' ' . $this->topic->topic_title;
+        return class_basename($this->topic->topicable_type) . ' # ' . $this->topic->topic_title;
     }
 }
