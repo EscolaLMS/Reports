@@ -62,9 +62,9 @@ class ExportStatsTest extends TestCase
 
         $this->assertEquals([
             $export->firstHeader,
-            'PDF ' . $topic1->title,
-            'Audio ' . $topic2->title,
-            H5PContent::find($topicable_h5p->value)->library->uberName . ' ' . $topic3->title
+            'PDF # ' . $topic1->title,
+            'Audio # ' . $topic2->title,
+            H5PContent::find($topicable_h5p->value)->library->uberName . ' # ' . $topic3->title
         ], $export->headings());
 
         $this->assertEquals(collect($result), $export->collection());

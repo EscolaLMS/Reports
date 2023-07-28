@@ -19,9 +19,9 @@ class H5PTopicTitleStrategy implements TopicTitleStrategy
         $h5pContent = H5PContent::find($this->topic->topicable->value);
 
         if (!$h5pContent || !$h5pContent->library) {
-            return class_basename($this->topic->topicable_type) . ' ' . $this->topic->topic_title;
+            return class_basename($this->topic->topicable_type) . ' # ' . $this->topic->topic_title;
         }
 
-        return $h5pContent->library->uberName . ' ' . $this->topic->topic_title;
+        return $h5pContent->library->uberName . ' # ' . $this->topic->topic_title;
     }
 }
