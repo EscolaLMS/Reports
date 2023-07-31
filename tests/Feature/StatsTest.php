@@ -2,13 +2,10 @@
 
 namespace EscolaLms\Reports\Tests\Feature;
 
-use Carbon\Carbon;
-use EscolaLms\Cart\Events\CartOrderPaid;
-use EscolaLms\Cart\Listeners\AttachOrderedCoursesToUser;
 use EscolaLms\Cart\Models\Order;
 use EscolaLms\Cart\Models\OrderItem;
-use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
 use EscolaLms\Cart\Models\User as CartUser;
+use EscolaLms\Cart\Services\Contracts\OrderServiceContract;
 use EscolaLms\Core\Models\User;
 use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
@@ -32,6 +29,7 @@ use EscolaLms\Reports\Stats\Course\PeopleBought;
 use EscolaLms\Reports\Stats\Course\PeopleFinished;
 use EscolaLms\Reports\Stats\Course\PeopleStarted;
 use EscolaLms\Reports\Stats\Course\Started;
+use EscolaLms\Reports\Stats\Topic\QuizSummaryForTopicTypeGIFT;
 use EscolaLms\Reports\Stats\User\ActiveUsers;
 use EscolaLms\Reports\Stats\User\NewUsers;
 use EscolaLms\Reports\Tests\Models\Course;
@@ -39,8 +37,19 @@ use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use EscolaLms\Reports\Tests\Traits\NotificationTestingTrait;
+use EscolaLms\TopicTypeGift\Dtos\SaveAttemptAnswerDto;
+use EscolaLms\TopicTypeGift\Enum\AnswerKeyEnum;
+use EscolaLms\TopicTypeGift\Enum\QuestionTypeEnum;
+use EscolaLms\TopicTypeGift\Jobs\MarkAttemptAsEnded;
+use EscolaLms\TopicTypeGift\Models\GiftQuestion;
+use EscolaLms\TopicTypeGift\Models\GiftQuiz;
+use EscolaLms\TopicTypeGift\Models\QuizAttempt;
+use EscolaLms\TopicTypeGift\Services\AttemptAnswerService;
+use EscolaLms\TopicTypeGift\Services\Contracts\AttemptAnswerServiceContract;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 
 class StatsTest extends TestCase
 {
@@ -266,10 +275,10 @@ class StatsTest extends TestCase
 
         $users
             ->slice(0, 10)
-            ->each(fn($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::now()->subMonth()]));
+            ->each(fn ($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::now()->subMonth()]));
         $users
             ->slice(10, 5)
-            ->each(fn($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::today()]));
+            ->each(fn ($user) => Order::factory()->create(['user_id' => $user->getKey(), 'created_at' => Carbon::today()]));
 
         $result = ReturningCustomers::make()->calculate();
 
@@ -494,7 +503,7 @@ class StatsTest extends TestCase
         $this->assertEquals($user1->id, $result[0]['id']);
         $this->assertEquals($user1->email, $result[0]['email']);
         $this->assertCount(2, $result[0]['topics']);
-        $this->assertCount(2, $result[0]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertCount(2, $result[0]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[0]['topics'][0]);
         $this->assertArrayHasKey('seconds', $result[0]['topics'][0]);
         $this->assertArrayHasKey('started_at', $result[0]['topics'][0]);
@@ -504,7 +513,7 @@ class StatsTest extends TestCase
         $this->assertEquals($user2->id, $result[1]['id']);
         $this->assertEquals($user2->email, $result[1]['email']);
         $this->assertCount(2, $result[1]['topics']);
-        $this->assertCount(1, $result[1]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertCount(1, $result[1]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[1]['topics'][0]);
         $this->assertArrayHasKey('seconds', $result[1]['topics'][0]);
         $this->assertArrayHasKey('started_at', $result[1]['topics'][0]);
@@ -514,7 +523,7 @@ class StatsTest extends TestCase
         $this->assertEquals($user3->id, $result[2]['id']);
         $this->assertEquals($user3->email, $result[2]['email']);
         $this->assertCount(2, $result[2]['topics']);
-        $this->assertCount(0, $result[2]['topics']->filter(fn($topic) => $topic['finished_at']));
+        $this->assertCount(0, $result[2]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[2]['topics'][0]);
         $this->assertArrayHasKey('seconds', $result[2]['topics'][0]);
         $this->assertArrayHasKey('started_at', $result[2]['topics'][0]);
@@ -623,5 +632,137 @@ class StatsTest extends TestCase
         $this->assertEquals(1, $result[1]['attempts'][1]['attempt']);
         $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][1]['dates']->first()['date']);
         $this->assertEquals(140, $result[1]['attempts'][1]['dates']->first()['seconds_total']);
+    }
+
+    public function testGiftQuizTopics(): void
+    {
+        Carbon::setTestNow();
+
+        if (!class_exists(GiftQuiz::class)) {
+            $this->skip();
+        }
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->state(['course_id' => $course->getKey()])->create();
+        $topic = Topic::factory()->state(['lesson_id' => $lesson->getKey()])->create();
+        $course->users()->attach($user1);
+        $course->users()->attach($user2);
+
+        assert($topic instanceof Topic);
+
+        $giftQuiz = GiftQuiz::factory()->create();
+
+        $topic->topicable()->associate($giftQuiz);
+        $topic->save();
+
+        $questions = [
+            [
+                'question' => '2+2?{~3 ~5 =4}',
+                'type' => QuestionTypeEnum::MULTIPLE_CHOICE,
+                'answer' => [AnswerKeyEnum::TEXT => '4'],
+                'wrongAnswer' => [AnswerKeyEnum::TEXT => '3'],
+                'score' => 1,
+            ],
+            [
+                'question' => '2+2?{~3 =4 ~5}',
+                'type' => QuestionTypeEnum::MULTIPLE_CHOICE,
+                'answer' => [AnswerKeyEnum::TEXT => '4'],
+                'wrongAnswer' => [AnswerKeyEnum::TEXT => '5'],
+                'score' => 1,
+            ],
+            [
+                'question' => '// question: 0 name: FalseStatement using {FALSE} style
+                               ::FalseStatement about sun::The sun rises in the West.{FALSE}',
+                'type' => QuestionTypeEnum::TRUE_FALSE,
+                'answer' => [AnswerKeyEnum::BOOL => false],
+                'wrongAnswer' => [AnswerKeyEnum::BOOL => true],
+                'score' => 1,
+            ],
+        ];
+
+        $createdQuestions = [];
+        foreach ($questions as $question) {
+            $createdQuestion = GiftQuestion::factory()
+                ->state([
+                    'topic_gift_quiz_id' => $giftQuiz->getKey(),
+                    'value' => $question['question'],
+                    'type' => $question['type'],
+                    'score' => $question['score'],
+                ])->create();
+
+            $createdQuestions[$createdQuestion->getKey()] = $question;
+        }
+        $giftQuiz->load('questions');
+
+        $attempt11 = QuizAttempt::factory()
+            ->state([
+                'user_id' => $user1->getKey(),
+                'topic_gift_quiz_id' => $giftQuiz->getKey(),
+                'started_at' => Carbon::now()->subMinutes(30),
+            ])
+            ->create();
+
+        $service = app(AttemptAnswerServiceContract::class);
+        assert($service instanceof AttemptAnswerService);
+
+        foreach ($giftQuiz->questions as $question) {
+            $service->saveAnswer(new SaveAttemptAnswerDto($attempt11->getKey(), $question->getKey(), $createdQuestions[$question->getKey()]['wrongAnswer']));
+            MarkAttemptAsEnded::dispatch($attempt11->getKey());
+        }
+
+        $attempt12 = QuizAttempt::factory()
+            ->state([
+                'user_id' => $user1->getKey(),
+                'topic_gift_quiz_id' => $giftQuiz->getKey(),
+                'started_at' => Carbon::now()->subMinutes(15),
+            ])
+            ->create();
+
+        foreach ($giftQuiz->questions as $question) {
+            $service->saveAnswer(new SaveAttemptAnswerDto($attempt12->getKey(), $question->getKey(), $createdQuestions[$question->getKey()]['answer']));
+            MarkAttemptAsEnded::dispatch($attempt12->getKey());
+        }
+
+        $attempt21 = QuizAttempt::factory()
+            ->state([
+                'user_id' => $user2->getKey(),
+                'topic_gift_quiz_id' => $giftQuiz->getKey(),
+                'started_at' => Carbon::now()->subMinutes(25),
+            ])
+            ->create();
+
+        foreach ($giftQuiz->questions as $question) {
+            $service->saveAnswer(new SaveAttemptAnswerDto($attempt21->getKey(), $question->getKey(), $createdQuestions[$question->getKey()]['answer']));
+            MarkAttemptAsEnded::dispatch($attempt21->getKey());
+        }
+
+        $result = QuizSummaryForTopicTypeGIFT::make($topic)->calculate();
+
+        $this->assertTrue((1801 - $result[1]['attempt_time']) <= 1);
+        $this->assertEquals($result[1]['user_id'], $user1->getKey());
+        $this->assertEquals($result[1]['attempt'], 1);
+
+        $this->assertTrue((901 - $result[2]['attempt_time']) <= 1);
+        $this->assertEquals($result[2]['user_id'], $user1->getKey());
+        $this->assertEquals($result[2]['attempt'], 2);
+
+        $this->assertTrue((1501 - $result[3]['attempt_time']) <= 1);
+        $this->assertEquals($result[3]['user_id'], $user2->getKey());
+        $this->assertEquals($result[3]['attempt'], 1);
+
+        $admin = $this->makeAdmin();
+        $response = $this->actingAs($admin)
+            ->json('GET', '/api/admin/stats/topic/' . $topic->getKey() . '?' . Arr::query([
+                'stats' => [
+                    QuizSummaryForTopicTypeGIFT::class,
+                ]
+            ]));
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'user_id' => $user1->getKey(),
+            'attempt' => 2,
+        ]);
     }
 }

@@ -17,6 +17,7 @@ use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Scorm\EscolaLmsScormServiceProvider;
 use EscolaLms\TopicTypes\EscolaLmsTopicTypesServiceProvider;
+use EscolaLms\TopicTypeGift\EscolaLmsTopicTypeGiftServiceProvider;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
 use Spatie\Permission\PermissionServiceProvider;
@@ -47,6 +48,7 @@ class TestCase extends CoreTestCase
             EscolaLmsCartServiceProvider::class,
             EscolaLmsScormServiceProvider::class,
             EscolaLmsQuestionnaireServiceProvider::class,
+            EscolaLmsTopicTypeGiftServiceProvider::class,
         ];
     }
 

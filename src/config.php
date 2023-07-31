@@ -85,6 +85,7 @@ return [
         ],
         \EscolaLms\Courses\Models\Topic::class => [
             \EscolaLms\Reports\Stats\Topic\AverageTime::class,
+            \EscolaLms\Reports\Stats\Topic\QuizSummaryForTopicTypeGIFT::class,
         ],
         \EscolaLms\Cart\Models\Cart::class => [
             \EscolaLms\Reports\Stats\Cart\NewCustomers::class,
