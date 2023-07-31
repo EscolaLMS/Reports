@@ -12,6 +12,14 @@ services:
     networks:
       - escola_lms
 
+  escola_lms_app82:
+    image: escolalms/php:8.2
+    command: bash -c "php-fpm -F"
+    volumes:
+      - ./../:/var/www/html
+    networks:
+      - escola_lms
+
   mysql:
     networks:
       - escola_lms
