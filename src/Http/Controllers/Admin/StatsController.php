@@ -9,6 +9,7 @@ use EscolaLms\Reports\Http\Requests\Admin\CartStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\CourseStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\DateRangeStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\ExportCourseStatRequest;
+use EscolaLms\Reports\Http\Requests\Admin\TopicStatsRequest;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -31,6 +32,12 @@ class StatsController extends EscolaLmsBaseController implements StatsSwagger
     {
         $course = $request->getCourse();
         return $this->sendResponse($this->statsService->calculate($course, $request->getStats()), __('Stats for Course'));
+    }
+
+    public function topic(TopicStatsRequest $request): JsonResponse
+    {
+        $topic = $request->getTopic();
+        return $this->sendResponse($this->statsService->calculate($topic, $request->getStats()), __('Stats for Topic'));
     }
 
     public function cart(CartStatsRequest $request): JsonResponse

@@ -61,7 +61,7 @@ class StatsService implements StatsServiceContract
 
         return Excel::download(
             (new $exportClass($model)),
-            Str::snake(class_basename($stat)) . '_'. $model->getKey() . '.xlsx',
+            Str::snake(class_basename($stat)) . '_' . $model->getKey() . '.xlsx',
             \Maatwebsite\Excel\Excel::XLSX
         );
     }
