@@ -639,7 +639,7 @@ class StatsTest extends TestCase
         Carbon::setTestNow();
 
         if (!class_exists(GiftQuiz::class)) {
-            $this->skip();
+            $this->markTestSkipped();
         }
 
         $user1 = User::factory()->create();

@@ -18,6 +18,7 @@ Route::group(['prefix' => 'api'], function () {
             Route::get('/cart', [StatsController::class, 'cart']);
             Route::get('/date-range', [StatsController::class, 'dateRange']);
             Route::get('/topic/{topic_id}', [StatsController::class, 'topic']);
+            Route::get('/topic/{topic_id}/export', [StatsController::class, 'topicExport']);
         });
     });
 });

@@ -7,12 +7,17 @@ use EscolaLms\Core\Tests\ApiTestTrait;
 use EscolaLms\Core\Tests\CreatesUsers;
 use EscolaLms\Courses\Enum\ProgressStatus;
 use EscolaLms\Courses\Models\Course;
+use EscolaLms\Courses\Models\Lesson;
+use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Reports\Exports\Stats\Course\FinishedTopicsExport;
+use EscolaLms\Reports\Exports\Stats\Topic\QuizSummaryForTopicTypeGIFTExport;
+use EscolaLms\Reports\Stats\Topic\QuizSummaryForTopicTypeGIFT;
 use EscolaLms\Reports\Tests\Models\TestUser;
 use EscolaLms\Courses\Models\Group;
 use EscolaLms\Reports\Tests\TestCase;
 use EscolaLms\Reports\Tests\Traits\CoursesTestingTrait;
 use EscolaLms\Reports\ValueObject\DateRange;
+use EscolaLms\TopicTypeGift\Models\GiftQuiz;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Testing\TestResponse;
@@ -175,6 +180,33 @@ class StatsTest extends TestCase
         Excel::assertDownloaded("finished_topics_$courseId.xlsx", function (FinishedTopicsExport $export) {
             $this->assertCount(4, $export->sheets());
 
+            return true;
+        });
+    }
+
+    public function testExportQuizSummaryStats(): void
+    {
+        Excel::fake();
+
+        if (!class_exists(GiftQuiz::class)) {
+            $this->markTestSkipped();
+        }
+
+        $giftQuiz = GiftQuiz::factory()->create();
+        $course = \EscolaLms\Reports\Tests\Models\Course::factory()->create();
+        $lesson = Lesson::factory()->state(['course_id' => $course->getKey()])->create();
+        $topic = Topic::factory()->state(['lesson_id' => $lesson->getKey()])->create();
+        $topic->topicable()->associate($giftQuiz);
+        $topic->save();
+
+        $this
+            ->actingAs($this->makeAdmin())
+            ->json( 'GET', '/api/admin/stats/topic/' . $topic->getKey() . '/export', [
+                'stat' => \EscolaLms\Reports\Stats\Topic\QuizSummaryForTopicTypeGIFT::class,
+            ])
+            ->assertOk();
+
+        Excel::assertDownloaded('quiz_summary_for_topic_type_g_i_f_t_' . $topic->getKey() . '.xlsx', function () {
             return true;
         });
     }

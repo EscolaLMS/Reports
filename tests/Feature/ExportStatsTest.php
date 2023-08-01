@@ -13,9 +13,14 @@ use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsAttemptsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsInfoSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsSecondsSheet;
 use EscolaLms\Reports\Exports\Stats\Course\Sheets\FinishedTopicsStatusesSheet;
+use EscolaLms\Reports\Exports\Stats\Topic\QuizSummaryForTopicTypeGIFTExport;
 use EscolaLms\Reports\Stats\Course\FinishedTopics;
 use EscolaLms\Reports\Tests\Models\Course;
 use EscolaLms\Reports\Tests\TestCase;
+use EscolaLms\TopicTypeGift\Models\AttemptAnswer;
+use EscolaLms\TopicTypeGift\Models\GiftQuestion;
+use EscolaLms\TopicTypeGift\Models\GiftQuiz;
+use EscolaLms\TopicTypeGift\Models\QuizAttempt;
 use EscolaLms\TopicTypes\Models\TopicContent\Audio;
 use EscolaLms\TopicTypes\Models\TopicContent\H5P;
 use EscolaLms\TopicTypes\Models\TopicContent\PDF;
@@ -110,5 +115,56 @@ class ExportStatsTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testQuizSummarySheet(): void
+    {
+        $giftQuiz = GiftQuiz::factory()->create();
+        $course = \EscolaLms\Reports\Tests\Models\Course::factory()->create();
+        $lesson = Lesson::factory()->state(['course_id' => $course->getKey()])->create();
+
+        /** @var Topic $topic */
+        $topic = Topic::factory()->state(['lesson_id' => $lesson->getKey()])->create();
+        $topic->topicable()->associate($giftQuiz);
+        $topic->save();
+
+        $question1 = GiftQuestion::factory()->for($giftQuiz)->create();
+        $question2 = GiftQuestion::factory()->for($giftQuiz)->create();
+
+        $attempt1 = QuizAttempt::factory()->for($giftQuiz)->create();
+        $answer11 = AttemptAnswer::factory()->for($attempt1, 'attempt')->for($question1, 'question')->create();
+        $answer12 = AttemptAnswer::factory()->for($attempt1, 'attempt')->for($question2, 'question')->create();
+
+        $attempt2 = QuizAttempt::factory()->for($giftQuiz)->create();
+        $answer21 = AttemptAnswer::factory()->for($attempt2, 'attempt')->for($question1, 'question')->create();
+        $answer22 = AttemptAnswer::factory()->for($attempt2, 'attempt')->for($question2, 'question')->create();
+
+        $export = new QuizSummaryForTopicTypeGIFTExport($topic);
+
+        $this->assertEquals([
+            __('User'),
+            __('Email'),
+            __('Attempt'),
+            __('Attempt Date'),
+            __('Time'),
+            'Question 1',
+            'Question 2',
+            __('Summary'),
+        ], array_values($export->headings()));
+
+
+        $collection = $export->collection();
+
+        $row1 = collect($export->map($collection->get(0)));
+        $this->assertEquals($attempt1->user_id, $row1->get('user_id'));
+        $this->assertEquals($attempt1->user->email, $row1->get('email'));
+        $this->assertEquals($answer11->score, $row1->get('question_' . $question1->getKey()));
+        $this->assertEquals($answer12->score, $row1->get('question_' . $question2->getKey()));
+
+        $row2 = collect($export->map($collection->get(1)));
+        $this->assertEquals($attempt2->user_id, $row2->get('user_id'));
+        $this->assertEquals($attempt2->user->email, $row2->get('email'));
+        $this->assertEquals($answer21->score, $row2->get('question_' . $question1->getKey()));
+        $this->assertEquals($answer22->score, $row2->get('question_' . $question2->getKey()));
     }
 }

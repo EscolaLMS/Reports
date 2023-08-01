@@ -34,6 +34,7 @@ class QuizSummaryForTopicTypeGIFT extends AbstractTopicStat
 
         $headers = [
             'user_id' => __('User'),
+            'email' => __('Email'),
             'attempt' => __('Attempt'),
             'attempt_date' => __('Attempt Date'),
             'attempt_time' => __('Time'),
@@ -42,6 +43,7 @@ class QuizSummaryForTopicTypeGIFT extends AbstractTopicStat
             assert($question instanceof GiftQuestion);
             $headers['question_' . $question->getKey()] = 'Question ' . $question->order;
         }
+        $headers['summary'] = __('Summary');
 
         $result = $attempts->map(function (QuizAttempt $attempt) use (&$user_attempt_count, $max_score) {
             $user_attempt_count[$attempt->user_id] = ($user_attempt_count[$attempt->user_id] ?? 0) + 1;
@@ -57,6 +59,7 @@ class QuizSummaryForTopicTypeGIFT extends AbstractTopicStat
             return array_merge(
                 [
                     'user_id' => $attempt->user_id,
+                    'email' => $attempt->user->email,
                     'attempt' => $user_attempt_count[$attempt->user_id],
                     'attempt_date' => $attempt->started_at,
                     'attempt_time' => $attempt->end_at->diffInSeconds($attempt->started_at),
