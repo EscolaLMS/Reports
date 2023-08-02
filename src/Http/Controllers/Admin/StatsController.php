@@ -9,6 +9,7 @@ use EscolaLms\Reports\Http\Requests\Admin\CartStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\CourseStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\DateRangeStatsRequest;
 use EscolaLms\Reports\Http\Requests\Admin\ExportCourseStatRequest;
+use EscolaLms\Reports\Http\Requests\Admin\ExportTopicStatRequest;
 use EscolaLms\Reports\Http\Requests\Admin\TopicStatsRequest;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use Illuminate\Http\JsonResponse;
@@ -53,5 +54,10 @@ class StatsController extends EscolaLmsBaseController implements StatsSwagger
     public function courseExport(ExportCourseStatRequest $request): BinaryFileResponse
     {
         return $this->statsService->export($request->getCourse(), $request->getStat());
+    }
+
+    public function topicExport(ExportTopicStatRequest $request): BinaryFileResponse
+    {
+        return $this->statsService->export($request->getTopic(), $request->getStat());
     }
 }
