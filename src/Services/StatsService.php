@@ -53,7 +53,7 @@ class StatsService implements StatsServiceContract
     public function export($model, string $stat): BinaryFileResponse
     {
         $available = $this->getAvailableStats($model);
-        $exportClass = 'EscolaLms\Reports\Exports\Stats\\' . str_after($stat, 'Stats\\') . 'Export';
+        $exportClass = 'EscolaLms\Reports\Exports\Stats\\' . Str::after($stat, 'Stats\\') . 'Export';
 
         if (!in_array($stat, $available) || !class_exists($exportClass)) {
             throw new ExportNotExistsException();
