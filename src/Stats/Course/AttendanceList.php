@@ -19,7 +19,7 @@ class AttendanceList extends AbstractCourseStat
         $topicsIds = $this->course->topics()->pluck($topicTable . '.id');
 
         return CourseProgress::query()
-            ->selectRaw('cast(' . $userAttendanceTable . '.attendance_date as date) AS date, cast(' . $userAttendanceTable . '.attendance_date as time) AS time, ' . $userTable . '.email, user_id, ' . $userAttendanceTable . '.attempt,' . $userAttendanceTable . '.seconds')
+            ->selectRaw('cast(' . $userAttendanceTable . '.attendance_date as date) AS date, cast(' . $userAttendanceTable . '.attendance_date as time) AS time, ' . $userTable . '.email, ' . $userTable . '.first_name, ' . $userTable . '.last_name, ' . 'user_id, ' . $userAttendanceTable . '.attempt,' . $userAttendanceTable . '.seconds')
             ->join($userTable, $courseProgressTable . '.user_id', '=', $userTable . '.id')
             ->join($userAttendanceTable, $courseProgressTable . '.id', '=', $userAttendanceTable . '.course_progress_id')
             ->whereIn('topic_id', $topicsIds)
@@ -29,6 +29,7 @@ class AttendanceList extends AbstractCourseStat
             ->map(fn($attempts, $userId) => [
                 'id' => $userId,
                 'email' => $attempts[0]->email,
+                'name' => $attempts[0]->first_name . ' ' . $attempts[0]->last_name,
                 'attempts' => collect($attempts)->groupBy(['attempt'])->map(fn($dates, $attempt) => [
                     'attempt' => $attempt,
                     'dates' => collect($dates)->groupBy(['date'])->map(fn($times, $date) => [

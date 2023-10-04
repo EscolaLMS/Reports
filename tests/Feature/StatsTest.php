@@ -502,6 +502,7 @@ class StatsTest extends TestCase
         $this->assertCount(3, $result);
         $this->assertEquals($user1->id, $result[0]['id']);
         $this->assertEquals($user1->email, $result[0]['email']);
+        $this->assertEquals($user1->name, $result[0]['name']);
         $this->assertCount(2, $result[0]['topics']);
         $this->assertCount(2, $result[0]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[0]['topics'][0]);
@@ -512,6 +513,7 @@ class StatsTest extends TestCase
         $this->assertEquals($user2->email, $result[1]['email']);
         $this->assertEquals($user2->id, $result[1]['id']);
         $this->assertEquals($user2->email, $result[1]['email']);
+        $this->assertEquals($user2->name, $result[1]['name']);
         $this->assertCount(2, $result[1]['topics']);
         $this->assertCount(1, $result[1]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[1]['topics'][0]);
@@ -522,6 +524,7 @@ class StatsTest extends TestCase
         $this->assertEquals($user3->email, $result[2]['email']);
         $this->assertEquals($user3->id, $result[2]['id']);
         $this->assertEquals($user3->email, $result[2]['email']);
+        $this->assertEquals($user3->name, $result[2]['name']);
         $this->assertCount(2, $result[2]['topics']);
         $this->assertCount(0, $result[2]['topics']->filter(fn ($topic) => $topic['finished_at']));
         $this->assertArrayHasKey('finished_at', $result[2]['topics'][0]);
@@ -540,8 +543,14 @@ class StatsTest extends TestCase
         CourseUserPivot::create(['user_id' => $student2->getKey(), 'course_id' => $course->getKey(), 'updated_at' => Carbon::today(), 'finished' => false]);
 
         $result = FinishedCourse::make($course)->calculate();
+        $this->assertEquals($student1->id, $result[0]['id']);
+        $this->assertEquals($student1->email, $result[0]['email']);
+        $this->assertEquals($student1->name, $result[0]['name']);
         $this->assertEquals(true, $result[0]['finished']);
         $this->assertEquals($today, $result[0]['finished_at']);
+        $this->assertEquals($student2->id, $result[1]['id']);
+        $this->assertEquals($student2->email, $result[1]['email']);
+        $this->assertEquals($student2->name, $result[1]['name']);
         $this->assertEquals(false, $result[1]['finished']);
         $this->assertEquals(null, $result[1]['finished_at']);
     }
@@ -617,6 +626,7 @@ class StatsTest extends TestCase
         // student1
         $this->assertCount(2, $result);
         $this->assertEquals($student->email, $result[0]['email']);
+        $this->assertEquals($student->name, $result[0]['name']);
         $this->assertCount(1, $result[0]['attempts']);
         $this->assertEquals(0, $result[0]['attempts'][0]['attempt']);
         $this->assertEquals(now()->subDay()->format('Y-m-d'), $result[0]['attempts'][0]['dates']->first()['date']);
@@ -625,6 +635,7 @@ class StatsTest extends TestCase
         $this->assertEquals(130, $result[0]['attempts'][0]['dates']->last()['seconds_total']);
         // student2
         $this->assertEquals($student2->email, $result[1]['email']);
+        $this->assertEquals($student2->name, $result[1]['name']);
         $this->assertCount(2, $result[1]['attempts']);
         $this->assertEquals(0, $result[1]['attempts'][0]['attempt']);
         $this->assertEquals($now->format('Y-m-d'), $result[1]['attempts'][0]['dates']->first()['date']);

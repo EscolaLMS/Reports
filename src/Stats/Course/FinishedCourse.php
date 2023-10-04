@@ -12,6 +12,7 @@ class FinishedCourse extends AbstractCourseStat
             ->map(fn($user) => [
                 'id' => $user->id,
                 'email' => $user->email,
+                'name' => $user->name,
                 'finished_at' => $user->pivot->finished ? $user->pivot->updated_at : null,
                 'finished' => $user->pivot->finished,
             ])
