@@ -753,14 +753,17 @@ class StatsTest extends TestCase
 
         $this->assertTrue((1801 - $result[1]['attempt_time']) <= 1);
         $this->assertEquals($result[1]['user_id'], $user1->getKey());
+        $this->assertEquals($result[1]['name'], $user1->name);
         $this->assertEquals($result[1]['attempt'], 1);
 
         $this->assertTrue((901 - $result[2]['attempt_time']) <= 1);
         $this->assertEquals($result[2]['user_id'], $user1->getKey());
+        $this->assertEquals($result[2]['name'], $user1->name);
         $this->assertEquals($result[2]['attempt'], 2);
 
         $this->assertTrue((1501 - $result[3]['attempt_time']) <= 1);
         $this->assertEquals($result[3]['user_id'], $user2->getKey());
+        $this->assertEquals($result[3]['name'], $user2->name);
         $this->assertEquals($result[3]['attempt'], 1);
 
         $admin = $this->makeAdmin();

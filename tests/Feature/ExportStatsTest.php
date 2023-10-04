@@ -144,6 +144,7 @@ class ExportStatsTest extends TestCase
         $this->assertEquals([
             __('User'),
             __('Email'),
+            __('Name'),
             __('Attempt'),
             __('Attempt Date'),
             __('Time'),
@@ -158,12 +159,14 @@ class ExportStatsTest extends TestCase
         $row1 = collect($export->map($collection->get(0)));
         $this->assertEquals($attempt1->user_id, $row1->get('user_id'));
         $this->assertEquals($attempt1->user->email, $row1->get('email'));
+        $this->assertEquals($attempt1->user->name, $row1->get('name'));
         $this->assertEquals($answer11->score, $row1->get('question_' . $question1->getKey()));
         $this->assertEquals($answer12->score, $row1->get('question_' . $question2->getKey()));
 
         $row2 = collect($export->map($collection->get(1)));
         $this->assertEquals($attempt2->user_id, $row2->get('user_id'));
         $this->assertEquals($attempt2->user->email, $row2->get('email'));
+        $this->assertEquals($attempt2->user->name, $row2->get('name'));
         $this->assertEquals($answer21->score, $row2->get('question_' . $question1->getKey()));
         $this->assertEquals($answer22->score, $row2->get('question_' . $question2->getKey()));
     }
