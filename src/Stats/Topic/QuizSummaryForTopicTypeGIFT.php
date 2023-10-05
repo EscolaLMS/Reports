@@ -35,6 +35,7 @@ class QuizSummaryForTopicTypeGIFT extends AbstractTopicStat
         $headers = [
             'user_id' => __('User'),
             'email' => __('Email'),
+            'name' => __('Name'),
             'attempt' => __('Attempt'),
             'attempt_date' => __('Attempt Date'),
             'attempt_time' => __('Time'),
@@ -60,6 +61,7 @@ class QuizSummaryForTopicTypeGIFT extends AbstractTopicStat
                 [
                     'user_id' => $attempt->user_id,
                     'email' => $attempt->user->email,
+                    'name' => $attempt->user->name,
                     'attempt' => $user_attempt_count[$attempt->user_id],
                     'attempt_date' => $attempt->started_at,
                     'attempt_time' => $attempt->end_at->diffInSeconds($attempt->started_at),

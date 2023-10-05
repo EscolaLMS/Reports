@@ -11,7 +11,7 @@ class ActiveUsers extends AbstractUsersStats
     public function calculate(): Collection
     {
         return DatabaseNotification::query()
-            ->selectRaw('DATE(created_at) AS date, COUNT(notifiable_id) AS count')
+            ->selectRaw('DATE(created_at) AS date, COUNT(DISTINCT notifiable_id) AS count')
             ->whereDate('created_at', '>=', $this->dateRange->getDateFrom())
             ->whereDate('created_at', '<=', $this->dateRange->getDateTo())
             ->groupBy('date')

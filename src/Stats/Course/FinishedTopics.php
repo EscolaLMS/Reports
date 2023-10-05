@@ -63,6 +63,8 @@ class FinishedTopics extends AbstractCourseStat
                 $this->topicTable . '.topicable_type',
                 $this->userTable . '.id as user_id',
                 $this->userTable . '.email as user_email',
+                $this->userTable . '.first_name as user_first_name',
+                $this->userTable . '.last_name as user_last_name',
                 $this->courseProgressTable . '.finished_at',
                 $this->courseProgressTable . '.seconds',
                 $this->courseProgressTable . '.started_at',
@@ -106,6 +108,7 @@ class FinishedTopics extends AbstractCourseStat
             ->groupBy('user_email')
             ->map(fn($topics, $userEmail) => [
                 'id' => $topics[0]->user_id,
+                'name' => $topics[0]->user_first_name . ' ' . $topics[0]->user_last_name,
                 'email' => $userEmail,
                 'topics' => collect($topics)->map(fn($topic) => [
                     'id' => $topic->topic_id,
