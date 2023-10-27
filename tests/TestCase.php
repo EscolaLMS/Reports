@@ -2,6 +2,7 @@
 
 namespace EscolaLms\Reports\Tests;
 
+use EscolaLms\Auth\EscolaLmsAuthServiceProvider;
 use EscolaLms\Cart\EscolaLmsCartServiceProvider;
 use EscolaLms\Cart\Facades\Shop;
 use EscolaLms\Categories\EscolaLmsCategoriesServiceProvider;
@@ -37,6 +38,7 @@ class TestCase extends CoreTestCase
     {
         return [
             ...parent::getPackageProviders($app),
+            EscolaLmsAuthServiceProvider::class,
             PermissionServiceProvider::class,
             PassportServiceProvider::class,
             EscolaLmsCategoriesServiceProvider::class,
