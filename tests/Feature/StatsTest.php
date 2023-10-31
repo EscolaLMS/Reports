@@ -62,7 +62,7 @@ class StatsTest extends TestCase
         User::query()->delete();
     }
 
-    public function testCourseAverageTime()
+    public function testCourseAverageTime(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
@@ -90,7 +90,7 @@ class StatsTest extends TestCase
         $this->assertEquals(30, $result3);
     }
 
-    public function testCourseAverageTimePerTopic()
+    public function testCourseAverageTimePerTopic(): void
     {
         $course = $this->createCourseWithLessonAndTopic(3);
         /** @var TestUser $student */
@@ -113,7 +113,7 @@ class StatsTest extends TestCase
         $this->assertEquals(75, $results->get($course->topics->get(2)->id)['average_time']);
     }
 
-    public function testCourseMoneyEarned()
+    public function testCourseMoneyEarned(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
 
@@ -128,7 +128,7 @@ class StatsTest extends TestCase
         $this->assertEquals(2000, $result);
     }
 
-    public function testBundledCoursesMoneyEarned()
+    public function testBundledCoursesMoneyEarned(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
         $course2 = $this->createCourseWithLessonAndTopic();
@@ -146,7 +146,7 @@ class StatsTest extends TestCase
         $this->assertEquals(500, $result);
     }
 
-    public function testCourseMoneyEarnedWithOrderItemThatIsNotRepresentingProductModel()
+    public function testCourseMoneyEarnedWithOrderItemThatIsNotRepresentingProductModel(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
 
@@ -167,7 +167,7 @@ class StatsTest extends TestCase
         $this->assertEquals(1000, $result);
     }
 
-    public function testPeopleBought()
+    public function testPeopleBought(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
 
@@ -187,7 +187,7 @@ class StatsTest extends TestCase
         $this->assertEquals(2, $result);
     }
 
-    public function testPeopleFinished()
+    public function testPeopleFinished(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
         /** @var TestUser $student */
@@ -211,7 +211,7 @@ class StatsTest extends TestCase
         $this->assertEquals(2, $result);
     }
 
-    public function testPeopleStarted()
+    public function testPeopleStarted(): void
     {
         $course = $this->createCourseWithLessonAndTopic();
         /** @var TestUser $student */
@@ -555,7 +555,7 @@ class StatsTest extends TestCase
         $this->assertEquals(null, $result[1]['finished_at']);
     }
 
-    public function testAttendanceList()
+    public function testAttendanceList(): void
     {
         $now = now();
         $course = $this->createCourseWithLessonAndTopic();
@@ -623,6 +623,7 @@ class StatsTest extends TestCase
         ])->make());
 
         $result = AttendanceList::make($course)->calculate();
+
         // student1
         $this->assertCount(2, $result);
         $this->assertEquals($student->email, $result[0]['email']);
