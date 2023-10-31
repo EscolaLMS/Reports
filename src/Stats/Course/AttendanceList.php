@@ -23,7 +23,7 @@ class AttendanceList extends AbstractCourseStat
             ->join($userTable, $courseProgressTable . '.user_id', '=', $userTable . '.id')
             ->join($userAttendanceTable, $courseProgressTable . '.id', '=', $userAttendanceTable . '.course_progress_id')
             ->whereIn('topic_id', $topicsIds)
-            ->orderBy('date')
+            ->orderBy($userAttendanceTable . '.attendance_date')
             ->get()
             ->groupBy(['user_id'])
             ->map(fn($attempts, $userId) => [
