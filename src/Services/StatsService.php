@@ -3,8 +3,10 @@
 namespace EscolaLms\Reports\Services;
 
 use EscolaLms\Reports\Exceptions\ExportNotExistsException;
+use EscolaLms\Reports\Imports\Stats\Course\FinishedTopicsImport;
 use EscolaLms\Reports\Services\Contracts\StatsServiceContract;
 use EscolaLms\Reports\Stats\StatsContract;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -64,5 +66,10 @@ class StatsService implements StatsServiceContract
             Str::snake(class_basename($stat)) . '_' . $model->getKey() . '.xlsx',
             \Maatwebsite\Excel\Excel::XLSX
         );
+    }
+
+    public function import($model, UploadedFile $file)
+    {
+        Excel::import(new FinishedTopicsImport($model), $file);
     }
 }
