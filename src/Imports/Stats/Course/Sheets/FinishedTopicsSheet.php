@@ -8,14 +8,13 @@ use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Courses\Models\Topic;
 use EscolaLms\Reports\Stats\Course\Strategies\TopicTitleStrategyContext;
 use Maatwebsite\Excel\Concerns\OnEachRow;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Row;
 
-abstract class FinishedTopicsSheet implements OnEachRow
+abstract class FinishedTopicsSheet implements OnEachRow, WithHeadingRow
 {
     protected Course $course;
-    protected array $headers = [];
     protected array $topics = [];
-    protected array $courseTopics = [];
 
     public function __construct(Course $course)
     {
@@ -25,17 +24,10 @@ abstract class FinishedTopicsSheet implements OnEachRow
 
     public function onRow(Row $row)
     {
-        if ($row->getIndex() === 1) {
-            $this->headers = array_filter($row->toArray(), fn ($item) => $item !== null);
-            for ($i = 1; $i < count($this->headers); $i++) {
-                $this->topics[$i] = $this->findTopic($this->headers[$i]);
-            }
-        } else {
-            $user = User::query()->where('email', '=', $row[0])->first();
-            if ($user) {
-                for ($i = 1; $i < count($this->headers); $i++) {
-                    $this->processRow($user, $this->topics[$i], $row[$i]);
-                }
+        $user = User::query()->where('email', '=', $row['Email'])->first();
+        if ($user) {
+            foreach ($this->topics as $title => $topic) {
+                $this->processRow($user, $topic, $row[$title]);
             }
         }
     }
@@ -59,11 +51,6 @@ abstract class FinishedTopicsSheet implements OnEachRow
     }
 
     protected abstract function prepareUpdateData($value, CourseProgress $courseProgress = null): array;
-
-    protected function findTopic(string $title): Topic
-    {
-        return $this->topics[$title];
-    }
 
     protected function prepareTopics()
     {
