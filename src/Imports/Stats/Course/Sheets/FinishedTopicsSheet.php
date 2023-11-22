@@ -6,7 +6,7 @@ use EscolaLms\Auth\Models\User;
 use EscolaLms\Courses\Models\Course;
 use EscolaLms\Courses\Models\CourseProgress;
 use EscolaLms\Courses\Models\Topic;
-use Illuminate\Support\Str;
+use EscolaLms\Reports\Stats\Course\Strategies\TopicTitleStrategyContext;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Row;
 
@@ -15,10 +15,12 @@ abstract class FinishedTopicsSheet implements OnEachRow
     protected Course $course;
     protected array $headers = [];
     protected array $topics = [];
+    protected array $courseTopics = [];
 
     public function __construct(Course $course)
     {
         $this->course = $course;
+        $this->prepareTopics();
     }
 
     public function onRow(Row $row)
@@ -60,8 +62,13 @@ abstract class FinishedTopicsSheet implements OnEachRow
 
     protected function findTopic(string $title): Topic
     {
-        $topicable_type = Str::contains($title, ' # ') ? Str::before($title, ' #') : null;
-        $topic_title = Str::contains($title, ' # ') ? Str::after($title, '# ') : $title;
-        return $this->course->topics->first(fn ($topic) => $topic->title === $topic_title);
+        return $this->topics[$title];
+    }
+
+    protected function prepareTopics()
+    {
+        $this->course->topics->each(function ($topic) {
+            $this->topics[(new TopicTitleStrategyContext($topic))->getStrategy()->makeTitle()] = $topic;
+        });
     }
 }
