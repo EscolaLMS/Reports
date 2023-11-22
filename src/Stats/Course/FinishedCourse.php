@@ -2,12 +2,12 @@
 
 namespace EscolaLms\Reports\Stats\Course;
 
-class FinishedCourse extends AbstractCourseStat
+class FinishedCourse extends CourseUsersAndGroupsStat
 {
     public function calculate()
     {
         $users = $this->course->users()->withPivot('updated_at', 'finished');
-        return $users
+        return array_merge($users
             ->get()
             ->map(fn($user) => [
                 'id' => $user->id,
@@ -17,6 +17,6 @@ class FinishedCourse extends AbstractCourseStat
                 'finished' => $user->pivot->finished,
             ])
             ->values()
-            ->toArray();
+            ->toArray(), $this->getGroupUsers()->values()->toArray());
     }
 }

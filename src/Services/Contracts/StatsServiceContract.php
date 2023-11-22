@@ -3,6 +3,7 @@
 namespace EscolaLms\Reports\Services\Contracts;
 
 use EscolaLms\Reports\Exceptions\ExportNotExistsException;
+use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 interface StatsServiceContract
@@ -14,4 +15,5 @@ interface StatsServiceContract
      * @throws ExportNotExistsException
      */
     public function export($model, string $stat): BinaryFileResponse;
+    public function import($model, UploadedFile $file);
 }
