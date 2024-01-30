@@ -43,7 +43,7 @@ abstract class CourseUsersAndGroupsStat extends AbstractCourseStat
 
     protected function getGroupUsers(): \Illuminate\Support\Collection
     {
-        return $this->formatGroupResult(Topic::query()
+        return $this->formatGroupResult(Topic::dontCache()
             ->select(
                 $this->topicTable . '.id as topic_id',
                 $this->topicTable . '.title as topic_title',

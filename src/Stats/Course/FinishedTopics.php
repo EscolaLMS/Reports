@@ -55,7 +55,7 @@ class FinishedTopics extends AbstractCourseStat
 
     private function getBaseQuery(): Builder
     {
-        return Topic::query()
+        return Topic::dontCache()
             ->select(
                 $this->topicTable . '.id as topic_id',
                 $this->topicTable . '.title as topic_title',
