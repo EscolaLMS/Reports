@@ -16,4 +16,9 @@ class Course extends BaseCourse implements Productable
     {
         $this->users()->syncWithoutDetaching($user->getKey());
     }
+
+    public static function getMorphClassStatic(): string
+    {
+        return parent::class;
+    }
 }
