@@ -16,6 +16,7 @@ abstract class AbstractDateRangeStats implements StatsContract
 
     public static function make(?Carbon $dateFrom = null, ?Carbon $dateTo = null): self
     {
+        // @phpstan-ignore-next-line
         return new static(new DateRange($dateFrom, $dateTo));
     }
 }

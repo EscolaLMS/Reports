@@ -17,7 +17,7 @@ abstract class AbstractCoursesPopularityMetric extends AbstractCoursesMetric
         return $this
             ->additionalConditions($query)
             ->get(['id', 'title', 'users_count'])
-            ->map(fn ($item) => [
+            ->map(fn (Course $item) => [
                 'id' => $item->id,
                 'label' => $item->title,
                 'value' => $item->users_count

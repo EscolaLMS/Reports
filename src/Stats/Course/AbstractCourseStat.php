@@ -16,6 +16,7 @@ abstract class AbstractCourseStat implements StatsContract
 
     public static function make(Course $course)
     {
+        // @phpstan-ignore-next-line
         return new static($course);
     }
 

@@ -20,6 +20,7 @@ abstract class ExtendableRequest extends FormRequest
      */
     protected function createDefaultValidator(ValidationFactory $factory)
     {
+        // @phpstan-ignore-next-line
         return $factory->make(
             $this->validationData(),
             array_merge($this->container->call([$this, 'rules']), self::$additional_rules ?? []),

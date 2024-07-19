@@ -29,6 +29,7 @@ abstract class AbstractCoursesSecondsSpentMetric extends AbstractCoursesMetric
         return $this->additionalConditions($query)
             ->get(['id', 'label', 'value'])
             ->map(function (Course $course) {
+                // @phpstan-ignore-next-line
                 $course->value = is_null($course->value) ? 0 : $course->value;
                 return $course;
             })

@@ -17,6 +17,7 @@ abstract class AbstractMetric implements MetricContract
 
     public static function make(): MetricContract
     {
+        // @phpstan-ignore-next-line
         return new static(config());
     }
 

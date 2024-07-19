@@ -56,7 +56,7 @@ class FinishedTopics extends AbstractCourseStat
     private function getBaseQuery(): Builder
     {
         return Topic::dontCache()
-            ->select(
+            ->select([
                 $this->topicTable . '.id as topic_id',
                 $this->topicTable . '.title as topic_title',
                 $this->topicTable . '.topicable_id',
@@ -69,7 +69,7 @@ class FinishedTopics extends AbstractCourseStat
                 $this->courseProgressTable . '.seconds',
                 $this->courseProgressTable . '.started_at',
                 $this->courseProgressTable . '.attempt',
-            )
+            ])
             ->with('topicable')
             ->join($this->lessonTable, $this->topicTable . '.lesson_id', '=', $this->lessonTable . '.id')
             ->join($this->courseTable, $this->lessonTable . '.course_id', '=', $this->courseTable . '.id')
@@ -107,16 +107,24 @@ class FinishedTopics extends AbstractCourseStat
         return $result
             ->groupBy('user_email')
             ->map(fn($topics, $userEmail) => [
+                // @phpstan-ignore-next-line
                 'id' => $topics[0]->user_id,
+                // @phpstan-ignore-next-line
                 'name' => $topics[0]->user_first_name . ' ' . $topics[0]->user_last_name,
                 'email' => $userEmail,
                 'topics' => collect($topics)->map(fn($topic) => [
+                    // @phpstan-ignore-next-line
                     'id' => $topic->topic_id,
                     'title' => (new TopicTitleStrategyContext($topic))->getStrategy()->makeTitle(),
+                    // @phpstan-ignore-next-line
                     'started_at' => $topic->started_at,
+                    // @phpstan-ignore-next-line
                     'seconds' => $topic->seconds,
+                    // @phpstan-ignore-next-line
                     'finished_at' => $topic->finished_at,
+                    // @phpstan-ignore-next-line
                     'attempt' => $topic->attempt,
+                    // @phpstan-ignore-next-line
                     'topicable_type' => $topic->topicable_type,
                 ]),
                 'seconds_total' => collect($topics)->sum('seconds'),

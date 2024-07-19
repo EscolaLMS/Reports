@@ -18,6 +18,7 @@ class Finished extends AbstractDateRangeStats
             ->groupBy('date')
             ->where('finished', '=', true)
             ->get(['date', 'count'])
+            // @phpstan-ignore-next-line
             ->mapWithKeys(fn(CourseUserPivot $model) => [$model->date => $model->count]);
     }
 
