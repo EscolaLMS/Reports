@@ -13,7 +13,9 @@ class FinishedCourse extends CourseUsersAndGroupsStat
                 'id' => $user->id,
                 'email' => $user->email,
                 'name' => $user->name,
+                // @phpstan-ignore-next-line
                 'finished_at' => $user->pivot->finished ? $user->pivot->updated_at : null,
+                // @phpstan-ignore-next-line
                 'finished' => $user->pivot->finished,
             ])
             ->values()

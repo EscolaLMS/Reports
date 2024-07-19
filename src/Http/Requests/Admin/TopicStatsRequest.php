@@ -3,6 +3,7 @@
 namespace EscolaLms\Reports\Http\Requests\Admin;
 
 use EscolaLms\Courses\Models\Topic;
+use EscolaLms\Reports\Models\Report;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

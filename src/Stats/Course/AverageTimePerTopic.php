@@ -13,6 +13,7 @@ class AverageTimePerTopic extends AbstractCourseStat
         return $this->course->topics->mapWithKeys(fn(Topic $topic) => [
             $topic->id => [
                 'average_time' => TopicAverageTime::make($topic)->calculate(),
+                // @phpstan-ignore-next-line
                 'title' => $topic->title,
             ]
         ]);

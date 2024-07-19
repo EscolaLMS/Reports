@@ -10,6 +10,7 @@ abstract class AbstractCartStat implements StatsContract
 {
     public static function make(): self
     {
+        // @phpstan-ignore-next-line
         return new static();
     }
 

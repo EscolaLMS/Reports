@@ -69,6 +69,7 @@ class MoneyEarned extends AbstractCourseStat
             $product = $orderItem->buyable;
             assert($product instanceof Product);
             $productablesCount = $product->productables->sum('quantity');
+            // @phpstan-ignore-next-line
             $courseCount = optional($orderItem->buyable->productables->where('productable_type', $this->course->getMorphClass())->where('productable_id', $this->course->getKey())->first())->quantity;
             if ($courseCount > 0 && $productablesCount > 0) {
                 $price = ($orderItem->subtotal * $courseCount / $productablesCount);

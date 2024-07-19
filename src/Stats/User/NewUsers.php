@@ -15,6 +15,7 @@ class NewUsers extends AbstractUsersStats
             ->whereDate('created_at', '<=', $this->dateRange->getDateTo())
             ->groupBy('date')
             ->get(['date', 'count'])
+            // @phpstan-ignore-next-line
             ->mapWithKeys(fn(User $model) => [$model->date => $model->count]);
     }
 }

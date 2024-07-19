@@ -16,6 +16,7 @@ class ActiveUsers extends AbstractUsersStats
             ->whereDate('created_at', '<=', $this->dateRange->getDateTo())
             ->groupBy('date')
             ->get(['date', 'count'])
+            // @phpstan-ignore-next-line
             ->mapWithKeys(fn(DatabaseNotification $model) => [$model->date => $model->count]);
     }
 

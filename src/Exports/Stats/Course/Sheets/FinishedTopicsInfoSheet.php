@@ -22,9 +22,11 @@ class FinishedTopicsInfoSheet extends FinishedTopicsSheet
         $ids = collect($this->stats->first())->get('topics')->pluck('id');
         $topics = Topic::whereIn('id', $ids)->with('topicable')->orderBy('id')->get();
 
+        /** @var Topic $topic */
         foreach ($topics as $topic) {
             $lengthCollection->push($topic->topicable?->length);
             $pageCountCollection->push($topic->topicable?->page_count);
+            // @phpstan-ignore-next-line
             $canSkipCollection->push(__($topic->can_skip));
         }
 

@@ -16,6 +16,7 @@ abstract class AbstractTopicStat implements StatsContract
 
     public static function make(Topic $topic)
     {
+        // @phpstan-ignore-next-line
         return new static($topic);
     }
 

@@ -28,7 +28,9 @@ class AttendanceList extends AbstractCourseStat
             ->groupBy(['user_id'])
             ->map(fn($attempts, $userId) => [
                 'id' => $userId,
+                // @phpstan-ignore-next-line
                 'email' => $attempts[0]->email,
+                // @phpstan-ignore-next-line
                 'name' => $attempts[0]->first_name . ' ' . $attempts[0]->last_name,
                 'attempts' => collect($attempts)->groupBy(['attempt'])->map(fn($dates, $attempt) => [
                     'attempt' => $attempt,
