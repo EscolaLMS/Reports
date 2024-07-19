@@ -23,11 +23,11 @@ jobs:
       - name: Instantiate package
         uses: actions/checkout@v2
 
-      - name: Update composer
-        run: COMPOSER_ROOT_VERSION=0.9.9 composer update
-
       - name: Setup environment
         run: cp env/postgres/* .
+
+      - name: Update composer
+        run: COMPOSER_ROOT_VERSION=0.9.9 composer update
 
       - name: Clear config
         run: vendor/bin/testbench config:clear
