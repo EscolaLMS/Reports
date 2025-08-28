@@ -414,5 +414,11 @@
                 ]
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Admin Reports",
+            "description": "Admin Reports"
+        }
+    ]
 }
